@@ -1,0 +1,3 @@
+# Martial Madness
+
+Martial Madness is a 2D single-player self-defense and survival game built from scratch in Java Swing. Unlike typical fighting games that focus on offensive combat, this game is designed to teach defensive reflexes—requiring players to survive for 60 seconds against a dynamically scaling enemy AI using carefully timed blocks, movement, and counter-attacks. Future plans for the project include expanding the game with smoother, multi-frame character animations, introducing more levels with unique environmental hazards, and integrating advanced real-world self-defense scenario questions to test and reward the player's survival instinct.

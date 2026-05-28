@@ -581,5 +581,6 @@ class Information
         points = 0;
         levelComplete = 0;
         outFileName = "highscores.txt";
+        
     }
 }

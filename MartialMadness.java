@@ -253,6 +253,10 @@ class InstructionPanel extends JPanel
         cards = cardsIn;
         setLayout(new BorderLayout());
 
+        JButton continueButton = new JButton("Continue");
+        continueButton.setPreferredSize(new Dimension(100, 40));
+        continueButton.setEnabled(false);
+
         class InstructionButtonHandler implements ActionListener
         {
             public void actionPerformed(ActionEvent evt)
@@ -344,10 +348,11 @@ class InstructionPanel extends JPanel
         westPanel.add(ip,BorderLayout.CENTER);
         add(westPanel, BorderLayout.EAST);
 
+        InstructionButtonHandler ibh = new InstructionButtonHandler();
         JPanel southPanel = new JPanel();
         Color southColor = new Color(50,205,50);
         southPanel.setBackground(southColor);
-        southPanel.setLayout(new FlowLayout(FlowLayout.LEFT),100,30);
+        southPanel.setLayout(new FlowLayout(FlowLayout.LEFT,100,30));
         JButton goBack = new JButton("Back");
         goBack.addActionListener(ibh);
         goBack.setPreferredSize(new Dimension(100,40));
@@ -380,26 +385,201 @@ class InstructionPanel extends JPanel
             super.paintComponent(g);
             Image pic1 = info.getMyImage("pic1.png");
             Image pic2 = info.getMyImage("pic2.png");
-            IMage pic3 = info.getMyImage("pic3.png");
+            Image pic3 = info.getMyImage("pic3.png");
             g.drawImage(pic1, 0,0,160,140,this);
             g.drawImage(pic2,0,150,160,140,this);
-            g,drawImage(pic3,0,300,160,130,this);
+            g.drawImage(pic3,0,300,160,130,this);
 
         }
 
     }
 }
 
-
-
-class LevelPanelHOdler extends JPanel
+class LevelPanelHolder extends JPanel
 {
     private MartialMadnessHolder mmh;
-    private CardLayout
+    private CardLayout cards;
+    private Information info;
+    private LevelPanel lp;
+
+    public LevelPanelHolder(MartialMadnessHolder mmhIn, CardLayout cardsIn, Information infoIn)
+    {
+        info = infoIn;
+        double[] level0 = {5.0,6,5000.0};
+        double[] level1 = {7.0,5,4500.0};
+        double[] level2 = {10.0,4,3500.0};
+        double[] level3 = {13,3,2500.0};
+        double[] level4 = {15.0,2,2000.0};
+        double[] level5 = {20.0,1,1500.0};
+        double[][] levels = {level0,level1,level2,level3,level4,level5};
+
+        mmh = mmhIn;
+        cards = cardsIn;
+
+        CardLayout levelCards = new CardLayout();
+        setLayout(levelCards);
+
+        lp = new LevelPanel(this,levelCards,mmh,cards,info);
+        add(lp,"Levels");
+        GamePanel gp1 = new GamePanel(mmh, cards,this,info,"clouds.jpg",level1);
+        Tutorial tp = new Tutorial(mmh,cards,this,gp1,info);
+        add(tp,"Tutorial");
+        ExtraCredit ec = new ExtraCredit(mmh,cards,this,info);
+        add(ec,"ExtraCredit");
+
+        //for loop to initialize the game panels with their respective images and adding them
+        String[] backGroundPicNames = {"canyon.jpeg","desert.jpg","forest.jpg","mystical.jpg","rural_pasture.jpg","tents.jpg"};
+        for(int i=0;i<6;i++)
+        {
+            GamePanel gp = new GamePanel(mmh,cards,this,info,backGroundPicNames[i],levels[i]);
+            add(gp,"GamePanel" + (i));
+    
+        }
+
+    }
+}
+
+class LevelPanel extends JPanel
+{
+    private LevelPanelHolder lph;
+    private CardLayout levelCards;
+    private MartialMadnessHolder mmh;
+    private CardLayout cards;
+    private Information info;
+    private JButton[] levelButtons;
+
+    public LevelPanel(LevelPanelHolder lphIn, CardLayout levelCardsIn, MartialMadnessHolder mmhIn, CardLayout cardsIn, Information infoIn)
+    {
+        info = infoIn;
+        lph = lphIn;
+        levelCards = levelCardsIn;
+        mmh = mmhIn;
+        cards = cardsIn;
+        setLayout(new BorderLayout());
+
+        class ButtonHandler implements ActionListener
+        {
+            public void actionPerformed(ActionEvent evt)
+            {
+                String command = evt.getActionCommand();
+                if(command.equals("Tutorial"))
+                {
+                    levelCards.show(lph,"Tutorial");
+                }
+                else if(command.equals("Level 1"))
+                {
+                    levelCards.show(lph,"Level 1");
+                }
+                else if(command.equals("Level 2"))
+                {
+                    levelCards.show(lph,"Level 2");
+                }
+                else if (command.equals("Level 3"))
+                {
+                    levelCards.show(lph,"Level 3");
+                }
+                else if(command.equals("Level 4"))
+                {
+                    levelCards.show(lph,"Level 4");
+                }
+                else if(command.equals("Level 5"))
+                {
+                    levelCards.show(lph,"Level 5");
+                }
+                else if(command.equals("Level 6"))
+                {
+                    levelCards.show(lph,"Level 6");
+                }
+                else if(command.equals("Extra Points"))
+                {
+                    levelCards.show(lph,"Extra Credit");
+                }
+            }
 
 
+        }
+
+        JPanel levelPanel = new JPanel();
+        JLabel levelLabel = new JLabel("Choose Level");
+        levelLabel.setFont(new Font("Dialog",Font.BOLD,20));
+        levelPanel.add(levelLabel);
+        add(levelPanel,BorderLayout.NORTH);
+
+        JPanel centerPanel = new JPanel();
+        Color centerColor = new Color(143,145,218);
+        centerPanel.setBackground(centerColor);
+        centerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 100,30));
+
+        ButtonHandler bh = new ButtonHandler();
+        levelButtons = new JButton[7];
+
+        JButton level0 = new JButton("Tutorial");
+        level0.setPreferredSize(new Dimension(150,100));
+        level0.addActionListener(bh);
+        levelButtons[0] = level0;
+
+        JButton level1 = new JButton("Level 1");
+        level1.setPreferredSize(new Dimension(150,100));
+        level1.addActionListener(bh);
+        levelButtons[1] = level1;
+
+        JButton level2 = new JButton("Level 2");
+        level2.setPreferredSize(new Dimension(150,100));
+        level2.addActionListener(bh);
+        levelButtons[2] = level2;
+
+        JButton level3 = new JButton("Level 3");
+        level3.setPreferredSize(new Dimension(150,100));
+        level3.addActionListener(bh);
+        levelButtons[3] = level3;
+
+        JButton level4 = new JButton("Level 4");
+        level4.setPreferredSize(new Dimension(150,100));
+        level4.addActionListener(bh);
+        levelButtons[4] = level4;
+
+        JButton level5 = new JButton("Level 5");
+        level5.setPreferredSize(new Dimension(150,100));
+        level5.addActionListener(bh);
+        levelButtons[5] = level5;
+
+        JButton level6 = new JButton("Level 6");
+        level6.setPreferredSize(new Dimension(150,100));
+        level6.addActionListener(bh);
+        levelButtons[6] = level6;
+
+        JButton level7 = new JButton("Extra Points");
+        level7.setPreferredSize(new Dimension(150,100));
+        level7.addActionListener(bh);
+
+        centerPanel.add(level0);
+        centerPanel.add(level1);
+        centerPanel.add(level2);
+        centerPanel.add(level3);
+        centerPanel.add(level4);
+        centerPanel.add(level5);
+        centerPanel.add(level6);
+        centerPanel.add(level7);
+        add(centerPanel,BorderLayout.CENTER);
+
+        FixedPanelHolder fph = new FixedPanelHolder(mmh,cards,false,lph);
+        add(fph,BorderLayout.SOUTH);
+    }
+}
 
 
+class Information
+{
+    private int points;
+    private int levelComplete;
+    private String name;
+    private String outFileName;
+    private PrintWriter pw;
 
-
+    public Information()
+    {
+        points = 0;
+        levelComplete = 0;
+        outFileName = "highscores.txt";
+    }
 }

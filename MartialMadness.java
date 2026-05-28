@@ -581,6 +581,71 @@ class Information
         points = 0;
         levelComplete = 0;
         outFileName = "highscores.txt";
-        
     }
+
+    public int getPoints()
+    {
+        return points;
+    }
+
+    public void makeIt()
+    {
+        File ioFile = new File("highscores.txt");
+        PrintWriter outFile  = null;
+        try
+        {
+            outFile = new PrintWriter(new FileWriter(ioFile.true));
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        outFile.append(name+"@"+points+"\n");
+        outFile.close();
+
+    }
+
+    public void setPoints(int number)
+    {
+        points+=number;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+    public Image getImage(String pictName)
+    {
+        Image picture = null;
+        File pictFile = new File(pictName);
+        try
+        {
+            picture = ImageIO.read(pictFile);
+        }
+        catch(IOException e)
+        {
+            System.err.println("\n\n" + pictName + " can't be found.\n\n");
+            System.exit(1);
+        }
+        return picture;
+    }
+
+    public Scanner loadFile(String filePath)
+    {
+        File file = new File(filePath);
+        Scanner scanner = null;
+        try
+        {
+            scanner = new Scanner(file);
+        }
+        catch(FileNotFoundException e)
+        {
+            System.out.println("Error loading quiz file: " + filePath);
+            System.exit(1);
+        }
+        return scanner;
+    }
+
+
 }

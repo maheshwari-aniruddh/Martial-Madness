@@ -646,6 +646,6 @@ class Information
         }
         return scanner;
     }
-
+    
 
 }

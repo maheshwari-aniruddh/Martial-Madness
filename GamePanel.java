@@ -167,7 +167,14 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
         addKeyListener(this);
         addFocusListener(this);
         frameTimer = new Timer(105, this); 
-        TimerHandler th = new TimerHandler
+        TimerHandler th = new TimerHandler;
+        countDownTimer = new Timer(1000, th);
+        enemyAttackTimer = new Timer(ENEMY_ATTACK_INTERVAL, th);
+        enemyHealthTimer = new Timer(1000,th);
+        enemyHealthTimer.start();
+
+        hasFocus = true;
+        initializeLevel();
 
 
 

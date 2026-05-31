@@ -79,6 +79,7 @@ class MartialMadnessHolder extends JPanel
         InstructionPanel ip = new InstructionPanel(this, cards, info);
 
         FirstPagePanel fpp = new FirstPagePanel(this, cards, info);
+        LevelPanelHolder lph = new LevelPanelHolder(this, cards, info);
         HighScorePanel hsp = new HighScorePanel(this, cards, lph, info);
 
         add(fpp, "First");
@@ -594,7 +595,7 @@ class Information
         PrintWriter outFile  = null;
         try
         {
-            outFile = new PrintWriter(new FileWriter(ioFile.true));
+            outFile = new PrintWriter(new FileWriter(ioFile, true));
         }
         catch(IOException e)
         {
@@ -614,6 +615,16 @@ class Information
     public String getName()
     {
         return name;
+    }
+
+    public void setName(String nameIn)
+    {
+        name = nameIn;
+    }
+
+    public Image getMyImage(String pictName)
+    {
+        return getImage(pictName);
     }
     public Image getImage(String pictName)
     {

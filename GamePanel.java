@@ -16,7 +16,7 @@ import javax.swing.Timer;
 import javax.swing.border.Border;
 
 import java.awt.Image;
-
+import java.awt.RenderingHints.Key;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 
@@ -176,30 +176,436 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
         hasFocus = true;
         initializeLevel();
 
+    }
 
+    public void stateChanged(ChangeEvent e)
+    {
+        JProgressBar source = (JProgressBar) e.getSource();
+
+        if (source == myHealth)
+        {
+            int value = myHealth.getValue();
+            if(value>70)
+            {
+                myProgressColor= Color.GREEN;
+            }
+            else if(value>30)
+            {
+                enemyProgressColor = Color.YELLOW;
+            }
+            else
+            {
+                enemyProgressColor = Color.RED;
+    
+            }
+        }
+        else if(source == enemyHealth)
+        {
+            int value = enemyHealth.getValue();
+            if(value>70)
+            {
+                enemyProgressColor = Color.GREEN;
+            }
+            else if(value>30)
+            {
+                enemyProgressColor = Color.YELLOW;
+            }
+            else{
+                enemyProgressColor = Color.RED;
+            }
+        }
+
+        public void focusGained(FocusEvent evt)
+        {
+            hasFocus = true;
+        }
+
+        public void focusLost(FocusEvent evt)
+        {
+            hasFocus = false;
+        }
+        class TimerHandler implements ActionListener
+        {
+            public void actionPerformed(ActionEvent)
+            {
+                Timer timerName = (Timer) evt.getSource;
+                if (timerName == countDownTimer)
+                {
+                    if(timeRemaining>0)
+                    {
+                        timeRemaining--;
+                    }
+                    else
+                    {
+                        countDownTimer.stop();
+                    }
+                    repaint();
+                }
+
+                if(timerName == enemyAttackTimer)
+                {
+                    if (countDownStarted)
+                    {
+                        makeEnemyMoves();
+                    }
+                }
+                if(timerName == enemyHealthTimer)
+                {
+                    int currentHealth = enemyHealth.getValue();
+                    enemyHealth.setValue(Math.max(0,currentHealth-(int)ENEMY_HEALTH_DEPLETION_RATE));
+                }
+
+            }
+    
+        }
+    }
+
+    public void loadAnimations(String inputDir)
+    {
+        boolean isEnemy = inputDir.equals("enemy_animations");
+        Image defaultFrame;
+        Image [][] target;
+
+        if(isEnemy)
+        {
+            enemyFrame = new Image[TOTAL_ANIMATIONS][];
+            defaultFrame = info.getMyImage("enemy_default.png");
+            target = enemyFrames;
+        }
+        else
+        {
+            animationFrames = new Image[TOTAL_ANIMATIONS][];
+            defaultFrame = info.getMyImage("default.png");
+            target = animationFrames;
+        }
+
+        target[PUNCH] = new Image[4];
+        target[PUNCH][0] = defaultFrame;
+        target[PUNCH][1] = info.getMyImage(inputDir + "/punch_animation copy/frame1.png");
+        target[PUNCH][2] = info.getMyImage(inputDir+ "/punch_animation copy/frame2.png");
+        target[PUNCH][3] = info.getImage(inputDir+ "/punch_animation copy/frame3.png");
+        
+        target[BLOCK] = new Image[4];
+        target[BLOCK][0] = defaultFrame;
+        target[BLOCK][1] = info.getMyImage(inputDir+"/block_animation/frame1.png");
+        target[BLOCK][2] = info.getMyImage(inputDir+"/block_animation/frame2.png");
+        target[BLOCK][3] = info.getMyImage(inputDir+"block_animation/frame3.png");
+        
+        target[KICK] = new Image[4];
+        target[KICK][0] = defaultFrame;
+        target[KICK][1] = info.getMyImage(inputDir+"/kick_animation/frame1.png");
+        target[KICK][2] = info.getMyImage(inputDir+"/kick_animation/frame2.png");
+        target[KICK][3] = info.getMyImage(inputDir+"/kick_animation/frame3.png");
+        target[KICK][4] = info.getMyImage(inputDir+"/kick_animation/frame4.png");
+        
+        target[UPPERCUT] = new Image[5];
+        target[UPPERCUT][0] = defaultFrame;
+        target[UPPERCUT][1] = info.getMyImage(inputDir+"/uppercut_animation/frame1.png");
+        target[UPPERCUT][2] = info.getMyImage(inputDir+"/uppercut_animation/frame2.png");
+        target[UPPERCUT][3] = info.getMyImage(inputDir+"/uppercut_animation/frame3.png");
+        target[UPPERCUT][4] = info.getMyImage(inputDir+"/uppercut_animation/frame4.png");
+    
+        target[ROUNDHOUSE] = new Image[10];
+        target[ROUNDHOUSE][0] = defaultFrame;
+        target[ROUNDHOUSE][1] = info.getMyImage(inputDir+"/roundhouse_animation/frame1.png");
+        target[ROUNDHOUSE][2] = info.getMyImage(inputDir+"/roundhouse_animation/frame2.png");
+        target[ROUNDHOUSE][3] = info.getMyImage(inputDir+"/roundhouse_animation/frame3.png");
+        target[ROUNDHOUSE][4] = info.getMyImage(inputDir+"/roundhouse_animation/frame4.png");
+        target[ROUNDHOUSE][5] = info.getMyImage(inputDir+"/roundhouse_animation/frame5.png");
+        target[ROUNDHOUSE][6] = info.getMyImage(inputDir+"/roundhouse_animation/frame6.png");
+        target[ROUNDHOUSE][7] = info.getMyImage(inputDir+"/roundhouse_animation/frame7.png");
+        target[ROUNDHOUSE][8] = info.getMyImage(inputDir+"/roundhouse_animation/frame8.png");
+        target[ROUNDHOUSE][9] = info.getMyImage(inputDir+"/roundhouse_animation/frame9.png");
+
+
+
+        if (isEnemy==true)
+        {
+            target[FORWARD] = new Image[6];
+            target[FORWARD][0] = defaultFrame;
+            target[FORWARD][1] = info.getMyImage(inputDir+"/backward_animation/frame1.png");
+            target[FORWARD][2] = info.getMyImage(inputDir+"/backward_animation/frame2.png");
+            target[FORWARD][3] = info.getMyImage(inputDir+"/backward_animation/frame3.png");
+            target[FORWARD][4] = info.getMyImage(inputDir+"/backward_animation/frame4.png");
+            target[FORWARD][5] = info.getMyImage(inputDir+"/backward_animation/frame5.png");
+            
+            target[BACKWARD] = new Image[6];
+            target[BACKWARD][0] = info.getMyImage(inputDir+"/forward_animation/frame1.png");
+            target[BACKWARD][1] = info.getMyImage(inputDir+"/forward_animation/frame2.png");
+            target[BACKWARD][2] = info.getMyImage(inputDir+"/forward_animation/frame3.png");
+            target[BACKWARD][3] = info.getMyImage(inputDir+"/forward_animation/frame4.png");
+            target[BACKWARD][4] = info.getMyImage(inputDir+"/forward_animation/frame5.png");
+            target[BACKWARD][5] = info.getMyImage(inputDir+"/forward_animation/frame6.png");
+        }
+        else
+        {
+            target[FORWARD] = new Image[6];
+            target[FORWARD][0] = defaultFrame;
+            target[FORWARD][1] = info.getMyImage(inputDir+"/forward_animation/frame1.png");
+            target[FORWARD][2] = info.getMyImage(inputDir+"/forward_animation/frame2.png");
+            target[FORWARD][3] = info.getMyImage(inputDir+"/forward_animation/frame3.png");
+            target[FORWARD][4] = info.getMyImage(inputDir+"/forward_animation/frame4.png");
+            target[FORWARD][5] = info.getMyImage(inputDir+"/forward_animation/frame5.png");
+            
+            target[BACKWARD] = new Image[6];
+            target[BACKWARD][0] = info.getMyImage(inputDir+"/backward_animation/frame1.png");
+            target[BACKWARD][1] = info.getMyImage(inputDir+"/backward_animation/frame2.png");
+            target[BACKWARD][2] = info.getMyImage(inputDir+"/backward_animaiton/frame3.png");
+            target[BACKWARD][3] = info.getMyImage(inputDir+"/backward_animation/frame4.png");
+            target[BACKWARD][4] = info.getMyImage(inputDir+"/backward_animation/frame5.png");
+            target[BACKWARD][5] = info.getMyImage(inputDir+"/backward_animation/frame6.png");
+        
+
+        }
+    }
+
+    public Image[][] getAnimationArray()
+    {
+        return animationFrames;
+    }
+
+    public void setAnimation(int typeIn)
+    {
+        animationPlaying = typeIn;
+        currentFrame = 0;
+        delayCounter = 0;
+        frameTimer.start();
+    }
+
+    public void setEnemyAnimation(int typeIn)
+    {
+        enemyAnimationPlaying = typeIn;
+        enemyCurrentFrame = 0;
+        enemyDelayCounter = 0;
+        frameTimer.start();
+    }
+
+    public void keyPressed(KeyEvent evt)
+    {
+        firstTime = false;
+        int keyCode = evt.getKeyCode();
+        if(!haveWon)
+        {
+            if(keyCode == KeyEvent.VK_F)
+            {
+                currentAnimation = PUNCH;
+                setAnimation(currentAnimation);
+            }
+            else if(keyCode == KeyEvent.VK_D)
+            {
+                currentAnimation = BLOCK;
+                setAnimation(currentAnimation);
+            }
+            else if(keyCode == KeyEvent.VK_V)
+            {
+                currentAnimation = KICK;
+                setAnimation(currentAnimation);
+            }
+            else if(keyCode == KeyEvent.VK_R)
+            {
+                currentAnimation = UPPERCUT;
+                setAnimation(currentAnimation);
+            }
+            else if(keyCode == KeyEvent.VK_E)
+            {
+                currentAnimation = ROUNDHOUSE;
+                setAnimation(currentAnimation);
+            }
+            else if(keyCode == KeyEvent.VK_LEFT)
+            {
+                currentAnimation = BACKWARD;
+                setAnimation(currentAnimation);
+            }
+            else if(keyCode == KeyEvent.VK_RIGHT)
+            {
+                currentAnimation = FORWARD;
+                setAnimation(currentAnimation);
+            }
+            else if(keyCode == KeyEvent.VK_SPACE && !countDownStarted)
+            {
+                stopFight();
+                countDownStarted = true;
+                countDownTimer.start();
+                enemyAttackTimer.start();
+                enemyHealthTimer.start();
+            }
+        }
+    }
+
+    public void stopFight()
+    {
+        myHealth.setValue(100);
+        enemyHealth.setValue(100);
+        timeRemaining = 60;
+        imageX = 200;
+        enemyImageX = 450;
+        if (firstTime == false)
+        {
+            info.makeIt();
+        }
+        frameTimer.stop();
+        countDownStarted.stop();
+        enemyAttackTimer.stop();
+        enemyHealthTimer.stop();
+        countDownStarted = false;
+    }
+
+    public void keyReleased(KeyEvent evt)
+    {
+    }
+
+    public void keyTyped(KeyEvent evt)
+    {
+    }
+
+    public void handleCombat()
+    {
+        int distance = Math.abs(imageX - enemyImageX);
+
+        if (distance<=MAX_ATTACK_RANGE)
+        {
+            if (animationPlaying == PUNCH || animationPlaying==KICK || animationPlaying == UPPERCUT
+                    || animationPlaying == ROUNDHOUSE)
+                    {
+                        int pushDistance = 0;
+                        if (animationPlaying == PUNCH)
+                        {
+                            info.setPoints(1);
+                            pushDistance = PUNCH_REBOUND;
+
+                            attackIndicatorY = enemyImageY + 100;
+                        }
+                        else if(animationPlaying == KICK)
+                        {
+                            info.setPoints(1);
+                            pushDistance = KICK_REBOUND;
+                            attackIndicatorY = enemyImageY+150;
+                        }
+                        else if(animationPlaying == UPPERCUT)
+                        {
+                            info.setPoints(1);
+                            pushDistance = UPPERCUT_REBOUND;
+                            attackIndicatorY = enemyImageY+50;
+                        }
+                        else if(animationPlaying == ROUNDHOUSE)
+                        {
+                            info.setPoints(1);
+                            pushDistance = KICK_REBOUND;
+                            attackIndicatorY = enemyImageY+50;
+                        }
+                        showPlayerAttackIndicator = true;
+
+                        attackIndicatorX = enemyImageX+100;
+                        if(enemyImageX<imageX)
+                        {
+                            enemyImageX = Math.max(0,enemyImageX - pushDistance);
+                        }
+                        else
+                        {
+                            enemyImageX = Math.min(600,enemyImageX+ pushDistance);
+                        }
+                    }
+        }
+    }
+
+    public void initializeLevel()
+    {
+        haveWon = false;
+        pointGiven = true;
+        firstTime = true;
+        gameOver = -1;
+        countDownStarted = false;
+
+        imageX = 200;
+        imageY = 215;
+        enemyImageX = 450;
+        enemyImageY= 215;
+
+        animationPlaying = -1;
+        currentAnimation = -1;
+        currentFrame = 0;
+        delayCounter = 0;
+
+        enemyCurrentFrame = 0;
+        enemyAnimationPlaying = -1;
+        enemyDelayCounter =0;
+        
+        myHealth.setValue(100);
+        enemyHealth.setValue(100);
+
+        timeRemaining = 60;
+
+        frameTimer.stop();
+        countDownTimer.stop();
+        enemyAttackTimer.stop();
+        enemyHealthTimer.stop();
+
+        requestFocusInWindow();
+        repaint();
+    }
+
+    public void handleEnemyAttack()
+    {
+        int distance = Math.abs(imageX - enemyImageX);
+        if (distance<=MAX_ATTACK_RANGE)
+        {
+            if(animationPlaying!=BLOCK)
+            {
+                int damage = 0;
+            int pushDistance = 0;
+            if (enemyAnimationPlaying == PUNCH)
+            {
+                damage = PUNCH_DAMAGE;
+                pushDistance = PUNCH_DAMAGE;
+                attackIndicatorY = imageY+100;
+
+
+            }
+            if(enemyAnimationPlaying == KICK)
+            {
+                damage = KICK_DAMAGE;
+                pushDistance = KICK_REBOUND;
+                attackIndicatorY = imageY+150;
+            }
+            if(enemyAnimationPlaying == UPPERCUT)
+            {
+                damage = UPPERCUT_DAMAGE;
+                pushDistance = UPPERCUT_DAMAGE;
+                attackIndicatorY = imageY+50;
+            }
+
+            showEnemyAttackIndicator = true;
+            attackIndicatorX = imageX + 100;
+            
+            if (imageX<enemyImageX)
+            {
+                 imageX = Math.max(0, imageX-pushDistance);
+            }
+            else
+            {
+                imageX = Math.min(600, imageX+pushDistance);
+            }
+
+            int currentHealth = myHealth.getValue();
+            myHealth.setValue(Math.max(0,currentHealth-damage));
+            }
+            
+        }
 
     }
 
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
 
+        requestFocusInWindow();
+        g.drawImage(backPic, 0,-20,800,600,this);
+        g.drawImage(bottom, 0, 400, this);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        if (animationPlaying>=0 && animationPlaying < TOTAL_ANIMATIONS)
+        {
+            g.drawImage();
+        }
+    }
 
 }

@@ -3,21 +3,16 @@ import javax.swing.JPanel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyListener;
-import java.sql.Time;
 import java.awt.event.KeyEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.FocusEvent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import apple.laf.JRSUIUtils.Images;
-
 import javax.swing.JProgressBar;
 import javax.swing.Timer;
-import javax.swing.border.Border;
-
 import java.awt.Image;
-import java.awt.RenderingHints.Key;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 
@@ -25,7 +20,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 
-class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusListener, ChangeListener 
+class GamePanel extends JPanel implements ActionListener, KeyListener, FocusListener, ChangeListener 
 {
     private Color myProgressColor;
     private Color enemyProgressColor;
@@ -125,8 +120,8 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
         enemyProgressColor = Color.GREEN;
         myHealth = new JProgressBar(0,100);
         enemyHealth = new JProgressBar(0,100);
-        defaultImage = info.getImage("default.png");
-        defaultImage = info.getImage("enemy_default.png");
+        defaultImage = info.getMyImage("default.png");
+        enemyDefaultImage = info.getMyImage("enemy_default.png");
 
         setLayout(new BorderLayout());
         JPanel healthPanel = new JPanel();
@@ -157,7 +152,7 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
         loadAnimations("animations");
         loadAnimations("enemy_animations");
 
-        FixelPanelHolder fph = new FixedPanelHolder(mmh, cards, true, lph);
+        FixedPanelHolder fph = new FixedPanelHolder(mmh, cards, true, lph);
 
         backPic = info.getMyImage(pictName);
 
@@ -168,7 +163,7 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
         addKeyListener(this);
         addFocusListener(this);
         frameTimer = new Timer(105, this); 
-        TimerHandler th = new TimerHandler;
+        TimerHandler th = new TimerHandler();
         countDownTimer = new Timer(1000, th);
         enemyAttackTimer = new Timer(ENEMY_ATTACK_INTERVAL, th);
         enemyHealthTimer = new Timer(1000,th);
@@ -192,12 +187,11 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
             }
             else if(value>30)
             {
-                enemyProgressColor = Color.YELLOW;
+                myProgressColor = Color.YELLOW;
             }
             else
             {
-                enemyProgressColor = Color.RED;
-    
+                myProgressColor = Color.RED;
             }
         }
         else if(source == enemyHealth)
@@ -215,50 +209,51 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
                 enemyProgressColor = Color.RED;
             }
         }
+    }
 
-        public void focusGained(FocusEvent evt)
-        {
-            hasFocus = true;
-        }
+    public void focusGained(FocusEvent evt)
+    {
+        hasFocus = true;
+    }
 
-        public void focusLost(FocusEvent evt)
+    public void focusLost(FocusEvent evt)
+    {
+        hasFocus = false;
+    }
+
+    class TimerHandler implements ActionListener
+    {
+        public void actionPerformed(ActionEvent evt)
         {
-            hasFocus = false;
-        }
-        class TimerHandler implements ActionListener
-        {
-            public void actionPerformed(ActionEvent)
+            Timer timerName = (Timer) evt.getSource();
+            if (timerName == countDownTimer)
             {
-                Timer timerName = (Timer) evt.getSource;
-                if (timerName == countDownTimer)
+                if(timeRemaining>0)
                 {
-                    if(timeRemaining>0)
-                    {
-                        timeRemaining--;
-                    }
-                    else
-                    {
-                        countDownTimer.stop();
-                    }
-                    repaint();
+                    timeRemaining--;
                 }
-
-                if(timerName == enemyAttackTimer)
+                else
                 {
-                    if (countDownStarted)
-                    {
-                        makeEnemyMoves();
-                    }
+                    countDownTimer.stop();
                 }
-                if(timerName == enemyHealthTimer)
-                {
-                    int currentHealth = enemyHealth.getValue();
-                    enemyHealth.setValue(Math.max(0,currentHealth-(int)ENEMY_HEALTH_DEPLETION_RATE));
-                }
-
+                repaint();
             }
-    
+
+            if(timerName == enemyAttackTimer)
+            {
+                if (countDownStarted)
+                {
+                    makeEnemyMoves();
+                }
+            }
+            if(timerName == enemyHealthTimer)
+            {
+                int currentHealth = enemyHealth.getValue();
+                enemyHealth.setValue(Math.max(0,currentHealth-(int)ENEMY_HEALTH_DEPLETION_RATE));
+            }
+
         }
+
     }
 
     public void loadAnimations(String inputDir)
@@ -269,7 +264,7 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
 
         if(isEnemy)
         {
-            enemyFrame = new Image[TOTAL_ANIMATIONS][];
+            enemyFrames = new Image[TOTAL_ANIMATIONS][];
             defaultFrame = info.getMyImage("enemy_default.png");
             target = enemyFrames;
         }
@@ -381,6 +376,13 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
         frameTimer.start();
     }
 
+    public void makeEnemyMoves()
+    {
+        int[] attackMoves = {PUNCH, KICK, UPPERCUT, ROUNDHOUSE};
+        int randomMove = attackMoves[(int)(Math.random() * attackMoves.length)];
+        setEnemyAnimation(randomMove);
+    }
+
     public void keyPressed(KeyEvent evt)
     {
         firstTime = false;
@@ -445,7 +447,7 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
             info.makeIt();
         }
         frameTimer.stop();
-        countDownStarted.stop();
+        countDownTimer.stop();
         enemyAttackTimer.stop();
         enemyHealthTimer.stop();
         countDownStarted = false;
@@ -605,7 +607,7 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
 
         if (animationPlaying>=0 && animationPlaying < TOTAL_ANIMATIONS)
         {
-            g.drawImage();
+            g.drawImage(animationFrames[animationPlaying][currentFrame], imageX, imageY, 200, 200, this);
         }
         else
         {
@@ -613,7 +615,7 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
         }
         if(enemyAnimationPlaying>= 0 && enemyAnimationPlaying< TOTAL_ANIMATIONS)
         {
-            g.drawImage(enemyFrame[enemyAnimationPlaying][enemyCurrentFrame]. enemyImageX, enemyImageY, 200,200,this);
+            g.drawImage(enemyFrames[enemyAnimationPlaying][enemyCurrentFrame], enemyImageX, enemyImageY, 200, 200, this);
         }
         else
         {
@@ -745,10 +747,10 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
                 {
                     imageX = newX;
                 }
-                if(currentAnimation< animationFrames[animationPlaying].length-1)
+                if(currentFrame < animationFrames[animationPlaying].length-1)
                 {
                     currentFrame++;
-                    if(currentAnimation == animationFrames[animationPlaying].length-2)
+                    if(currentFrame == animationFrames[animationPlaying].length-2)
                     {
                         handleCombat();
                     }
@@ -756,29 +758,6 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
                 else if (delayCounter< DELAY_FRAMES)
                 {
                     delayCounter++;
-                }
-                else
-                {
-                    currentFrame = 0;
-                    animationPlaying = -1;
-                    delayCounter = 0;
-                }
-            }
-
-
-            if (enemyAnimationPlaying>=0)
-            {
-                if(enemyCurrentFrame < enemyFrames[enemyAnimationPlaying].length-1)
-                {
-                    enemyCurrentFrame++;
-                    if(enemyCurrentFrame == enemyFrames[enemyAnimationPlaying].length-2)
-                    {
-                        handleEnemyAttack();
-                    }
-                }
-                else if(enemyDelayCounter<DELAY_FRAMES)
-                {
-                    enemyDelayCounter++;
                 }
                 else
                 {

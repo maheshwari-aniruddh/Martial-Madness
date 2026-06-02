@@ -3,6 +3,7 @@ import javax.swing.JPanel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyListener;
+import java.sql.Time;
 import java.awt.event.KeyEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.FocusEvent;
@@ -605,6 +606,238 @@ class GamePanel extends JPanel, implements ActionListener, KeyListener,FocusList
         if (animationPlaying>=0 && animationPlaying < TOTAL_ANIMATIONS)
         {
             g.drawImage();
+        }
+        else
+        {
+            g.drawImage(defaultImage, imageX, imageY, 200,200,this);   
+        }
+        if(enemyAnimationPlaying>= 0 && enemyAnimationPlaying< TOTAL_ANIMATIONS)
+        {
+            g.drawImage(enemyFrame[enemyAnimationPlaying][enemyCurrentFrame]. enemyImageX, enemyImageY, 200,200,this);
+        }
+        else
+        {
+            g.drawImage(enemyDefaultImage,enemyImageX,enemyImageY, 200,200, this);
+        }
+
+        if (showPlayerAttackIndicator)
+        {
+            g.setColor(new Color(255,0,0,100));
+            g.fillOval(attackIndicatorX-25, attackIndicatorY-25,50,50);
+            showPlayerAttackIndicator = false;
+        }
+        if(showEnemyAttackIndicator)
+        {
+            g.setColor(new Color(255,0,0,100));
+            g.fillOval(attackIndicatorX-25,attackIndicatorY-25,50,50);
+            showEnemyAttackIndicator = false; 
+        }
+
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial",Font.BOLD, 16));
+        
+        g.drawString("Player Health",150,25);
+        g.setColor(myProgressColor);
+        g.fillRect(150,30,myHealth.getValue()*2,30);
+
+        g.setColor(Color.WHITE);
+        g.drawString("Enemy Health",450,25);
+        g.setColor(enemyProgressColor);
+        g.fillRect(450,30,enemyHealth.getValue()*2,30);
+
+        if(countDownStarted)
+        {
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial",Font.BOLD, 24));
+            g.drawString("Time: "+ timeRemaining,350,50);
+        }
+
+        if(enemyHealth.getValue()<=0)
+        {
+            gameOver = 0;
+            g.setColor(new Color(245,245,220));
+            g.fillRect(0,0,800,410);
+            g.setColor(Color.GREEN);
+            g.setFont(new Font("Arial", Font.BOLD,48));
+            g.drawString("YOU WIN! ", 250, 200);
+            g.setFont(new Font("Arial", Font.BOLD, 36));
+            g.drawString("(press space to retry level)", 70,240);
+            setLevel();
+        }
+
+        if(myHealth.getValue()<=0)
+        {
+            gameOver = 1;
+            g.setColor(new Color(245,245,220));
+            g.fillRect(0,0,800,410);
+            g.setColor(Color.RED);
+            g.setFont(new Font("Arial", Font.BOLD, 48));
+            g.drawString( "YOU LOSE!", 250,200);
+            g.setFont(new Font("Arial", Font.BOLD, 36));
+            g.drawString("(press space to retry level)",70 ,240 );
+            setLevel();
+        }
+
+        if(firstTime)
+        {
+            g.setColor(new Color(245,245, 200));
+            g.fillRect(0,0,800,410);
+            g.setColor(new Color(250,49,100));
+            g.setFont(new Font("Monteserrat", Font.BOLD, 60));
+            g.drawString("PRESS SPACE TO BEGIN",10,200);
+        }
+        else if(timeRemaining<=0)
+        {
+            g.setColor(Color.YELLOW);
+            g.setFont(new Font("Arial", Font.BOLD,48));
+            g.drawString("TIME'S UP!", 250,200);
+        }
+    }
+
+    public void setLevel()
+    {
+        if(gameOver == 0 && pointGiven)
+        {
+            haveWon = true;
+            stopFight();
+        }
+        if(gameOver == 1)
+        {
+            stopFight();
+        }
+        gameOver = -1;
+        pointGiven = false;
+    }
+
+    public void actionPerformed(ActionEvent evt)
+    {
+        Timer timerName = (Timer) evt.getSource();
+        
+        if(timerName == frameTimer)
+        {
+            if(animationPlaying>= 0)
+            {
+                int positionAdjustment = 0;
+                if(animationPlaying==FORWARD)
+                {
+                    positionAdjustment = 20;
+                }
+                else if(animationPlaying == BACKWARD)
+                {
+                    positionAdjustment = -20;
+                }
+
+                int newX = imageX+positionAdjustment;
+                int distanceToEnemy = Math.abs(newX - enemyImageX);
+                if(distanceToEnemy < 150)
+                {
+                    if(newX < enemyImageX)
+                    {
+                        enemyImageX = Math.min(600,enemyImageX+positionAdjustment);
+                    }
+                    else
+                    {
+                        enemyImageX = Math.max(0,enemyImageX+positionAdjustment);
+                    }
+                }
+
+                if(newX>=0 && newX<=600)
+                {
+                    imageX = newX;
+                }
+                if(currentAnimation< animationFrames[animationPlaying].length-1)
+                {
+                    currentFrame++;
+                    if(currentAnimation == animationFrames[animationPlaying].length-2)
+                    {
+                        handleCombat();
+                    }
+                }
+                else if (delayCounter< DELAY_FRAMES)
+                {
+                    delayCounter++;
+                }
+                else
+                {
+                    currentFrame = 0;
+                    animationPlaying = -1;
+                    delayCounter = 0;
+                }
+            }
+
+
+            if (enemyAnimationPlaying>=0)
+            {
+                if(enemyCurrentFrame < enemyFrames[enemyAnimationPlaying].length-1)
+                {
+                    enemyCurrentFrame++;
+                    if(enemyCurrentFrame == enemyFrames[enemyAnimationPlaying].length-2)
+                    {
+                        handleEnemyAttack();
+                    }
+                }
+                else if(enemyDelayCounter<DELAY_FRAMES)
+                {
+                    enemyDelayCounter++;
+                }
+                else
+                {
+                    currentFrame = 0;
+                    animationPlaying = -1;
+                    delayCounter = 0;
+                }
+            }
+
+            if (enemyAnimationPlaying>=0)
+            {
+                if(enemyCurrentFrame<enemyFrames[enemyAnimationPlaying].length -1)
+                {
+                    enemyCurrentFrame++;
+                    if (enemyCurrentFrame == enemyFrames[enemyAnimationPlaying].length-2)
+                    {
+                        handleEnemyAttack();
+                    }
+                }
+                else if(enemyDelayCounter< DELAY_FRAMES)
+                {
+                    enemyDelayCounter++;
+                }
+                else
+                {
+                    enemyCurrentFrame = 0;
+                    enemyAnimationPlaying = -1;
+                    enemyDelayCounter = 0;
+                }
+            }
+            else
+            {
+                int distanceToPlayer = Math.abs(imageX - enemyImageX);
+                if(distanceToPlayer>= 150)
+                {
+                    if(enemyImageX<imageX)
+                    {
+                        enemyImageX = Math.min(600,enemyImageX+(int)ENEMY_FOLLOW_SPEED);
+                    }
+                    else
+                    {
+                        enemyImageX = Math.max(0, enemyImageX - (int)ENEMY_FOLLOW_SPEED);
+                    }
+                }
+            }
+            repaint();
+        }
+        else if(timerName == countDownTimer)
+        {
+            if (countDownStarted)
+            {
+                makeEnemyMoves();
+            }
+        }
+
+        if (timerName == enemyHealthTimer)
+        {
+            int currentHealth = enemyHealth.getValue();
+            enemyHealth.setValue(Math.max(0,currentHealth - (int)ENEMY_HEALTH_DEPLETION_RATE));
         }
     }
 

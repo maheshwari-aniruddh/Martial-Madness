@@ -285,14 +285,13 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         target[BLOCK][0] = defaultFrame;
         target[BLOCK][1] = info.getMyImage(inputDir+"/block_animation/frame1.png");
         target[BLOCK][2] = info.getMyImage(inputDir+"/block_animation/frame2.png");
-        target[BLOCK][3] = info.getMyImage(inputDir+"block_animation/frame3.png");
+        target[BLOCK][3] = info.getMyImage(inputDir+"/block_animation/frame3.png");
         
         target[KICK] = new Image[4];
         target[KICK][0] = defaultFrame;
         target[KICK][1] = info.getMyImage(inputDir+"/kick_animation/frame1.png");
         target[KICK][2] = info.getMyImage(inputDir+"/kick_animation/frame2.png");
         target[KICK][3] = info.getMyImage(inputDir+"/kick_animation/frame3.png");
-        target[KICK][4] = info.getMyImage(inputDir+"/kick_animation/frame4.png");
         
         target[UPPERCUT] = new Image[5];
         target[UPPERCUT][0] = defaultFrame;
@@ -303,15 +302,15 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
     
         target[ROUNDHOUSE] = new Image[10];
         target[ROUNDHOUSE][0] = defaultFrame;
-        target[ROUNDHOUSE][1] = info.getMyImage(inputDir+"/roundhouse_animation/frame1.png");
-        target[ROUNDHOUSE][2] = info.getMyImage(inputDir+"/roundhouse_animation/frame2.png");
-        target[ROUNDHOUSE][3] = info.getMyImage(inputDir+"/roundhouse_animation/frame3.png");
-        target[ROUNDHOUSE][4] = info.getMyImage(inputDir+"/roundhouse_animation/frame4.png");
-        target[ROUNDHOUSE][5] = info.getMyImage(inputDir+"/roundhouse_animation/frame5.png");
-        target[ROUNDHOUSE][6] = info.getMyImage(inputDir+"/roundhouse_animation/frame6.png");
-        target[ROUNDHOUSE][7] = info.getMyImage(inputDir+"/roundhouse_animation/frame7.png");
-        target[ROUNDHOUSE][8] = info.getMyImage(inputDir+"/roundhouse_animation/frame8.png");
-        target[ROUNDHOUSE][9] = info.getMyImage(inputDir+"/roundhouse_animation/frame9.png");
+        target[ROUNDHOUSE][1] = info.getMyImage(inputDir+"/roundhouse_animations/frame1.png");
+        target[ROUNDHOUSE][2] = info.getMyImage(inputDir+"/roundhouse_animations/frame2.png");
+        target[ROUNDHOUSE][3] = info.getMyImage(inputDir+"/roundhouse_animations/frame3.png");
+        target[ROUNDHOUSE][4] = info.getMyImage(inputDir+"/roundhouse_animations/frame4.png");
+        target[ROUNDHOUSE][5] = info.getMyImage(inputDir+"/roundhouse_animations/frame5.png");
+        target[ROUNDHOUSE][6] = info.getMyImage(inputDir+"/roundhouse_animations/frame6.png");
+        target[ROUNDHOUSE][7] = info.getMyImage(inputDir+"/roundhouse_animations/frame7.png");
+        target[ROUNDHOUSE][8] = info.getMyImage(inputDir+"/roundhouse_animations/frame8.png");
+        target[ROUNDHOUSE][9] = info.getMyImage(inputDir+"/roundhouse_animations/frame9.png");
 
 
 
@@ -326,12 +325,12 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             target[FORWARD][5] = info.getMyImage(inputDir+"/backward_animation/frame5.png");
             
             target[BACKWARD] = new Image[6];
-            target[BACKWARD][0] = info.getMyImage(inputDir+"/forward_animation/frame1.png");
-            target[BACKWARD][1] = info.getMyImage(inputDir+"/forward_animation/frame2.png");
-            target[BACKWARD][2] = info.getMyImage(inputDir+"/forward_animation/frame3.png");
-            target[BACKWARD][3] = info.getMyImage(inputDir+"/forward_animation/frame4.png");
-            target[BACKWARD][4] = info.getMyImage(inputDir+"/forward_animation/frame5.png");
-            target[BACKWARD][5] = info.getMyImage(inputDir+"/forward_animation/frame6.png");
+            target[BACKWARD][0] = defaultFrame;
+            target[BACKWARD][1] = info.getMyImage(inputDir+"/forward_animation/frame1.png");
+            target[BACKWARD][2] = info.getMyImage(inputDir+"/forward_animation/frame2.png");
+            target[BACKWARD][3] = info.getMyImage(inputDir+"/forward_animation/frame3.png");
+            target[BACKWARD][4] = info.getMyImage(inputDir+"/forward_animation/frame4.png");
+            target[BACKWARD][5] = info.getMyImage(inputDir+"/forward_animation/frame5.png");
         }
         else
         {
@@ -344,12 +343,12 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             target[FORWARD][5] = info.getMyImage(inputDir+"/forward_animation/frame5.png");
             
             target[BACKWARD] = new Image[6];
-            target[BACKWARD][0] = info.getMyImage(inputDir+"/backward_animation/frame1.png");
-            target[BACKWARD][1] = info.getMyImage(inputDir+"/backward_animation/frame2.png");
-            target[BACKWARD][2] = info.getMyImage(inputDir+"/backward_animaiton/frame3.png");
-            target[BACKWARD][3] = info.getMyImage(inputDir+"/backward_animation/frame4.png");
-            target[BACKWARD][4] = info.getMyImage(inputDir+"/backward_animation/frame5.png");
-            target[BACKWARD][5] = info.getMyImage(inputDir+"/backward_animation/frame6.png");
+            target[BACKWARD][0] = defaultFrame;
+            target[BACKWARD][1] = info.getMyImage(inputDir+"/backward_animation/frame1.png");
+            target[BACKWARD][2] = info.getMyImage(inputDir+"/backward_animation/frame2.png");
+            target[BACKWARD][3] = info.getMyImage(inputDir+"/backward_animation/frame3.png");
+            target[BACKWARD][4] = info.getMyImage(inputDir+"/backward_animation/frame4.png");
+            target[BACKWARD][5] = info.getMyImage(inputDir+"/backward_animation/frame5.png");
         
 
         }
@@ -493,8 +492,8 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
                         else if(animationPlaying == ROUNDHOUSE)
                         {
                             info.setPoints(1);
-                            pushDistance = KICK_REBOUND;
-                            attackIndicatorY = enemyImageY+50;
+                            pushDistance = ROUNDHOUSE_REBOUND;
+                            attackIndicatorY = enemyImageY+100;
                         }
                         showPlayerAttackIndicator = true;
 
@@ -559,22 +558,26 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             if (enemyAnimationPlaying == PUNCH)
             {
                 damage = PUNCH_DAMAGE;
-                pushDistance = PUNCH_DAMAGE;
+                pushDistance = PUNCH_REBOUND;
                 attackIndicatorY = imageY+100;
-
-
             }
-            if(enemyAnimationPlaying == KICK)
+            else if(enemyAnimationPlaying == KICK)
             {
                 damage = KICK_DAMAGE;
                 pushDistance = KICK_REBOUND;
                 attackIndicatorY = imageY+150;
             }
-            if(enemyAnimationPlaying == UPPERCUT)
+            else if(enemyAnimationPlaying == UPPERCUT)
             {
                 damage = UPPERCUT_DAMAGE;
-                pushDistance = UPPERCUT_DAMAGE;
+                pushDistance = UPPERCUT_REBOUND;
                 attackIndicatorY = imageY+50;
+            }
+            else if(enemyAnimationPlaying == ROUNDHOUSE)
+            {
+                damage = ROUNDHOUSE_DAMAGE;
+                pushDistance = ROUNDHOUSE_REBOUND;
+                attackIndicatorY = imageY+100;
             }
 
             showEnemyAttackIndicator = true;
@@ -663,7 +666,8 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             g.setFont(new Font("Arial", Font.BOLD,48));
             g.drawString("YOU WIN! ", 250, 200);
             g.setFont(new Font("Arial", Font.BOLD, 36));
-            g.drawString("(press space to retry level)", 70,240);
+            g.drawString("(press back to go to the next level) ", 70, 240);
+            countDownStarted = false;
             setLevel();
         }
 

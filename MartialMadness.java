@@ -469,31 +469,31 @@ class LevelPanel extends JPanel
                 }
                 else if(command.equals("Level 1"))
                 {
-                    levelCards.show(lph,"Level 1");
+                    levelCards.show(lph,"GamePanel0");
                 }
                 else if(command.equals("Level 2"))
                 {
-                    levelCards.show(lph,"Level 2");
+                    levelCards.show(lph,"GamePanel1");
                 }
                 else if (command.equals("Level 3"))
                 {
-                    levelCards.show(lph,"Level 3");
+                    levelCards.show(lph,"GamePanel2");
                 }
                 else if(command.equals("Level 4"))
                 {
-                    levelCards.show(lph,"Level 4");
+                    levelCards.show(lph,"GamePanel3");
                 }
                 else if(command.equals("Level 5"))
                 {
-                    levelCards.show(lph,"Level 5");
+                    levelCards.show(lph,"GamePanel4");
                 }
                 else if(command.equals("Level 6"))
                 {
-                    levelCards.show(lph,"Level 6");
+                    levelCards.show(lph,"GamePanel5");
                 }
                 else if(command.equals("Extra Points"))
                 {
-                    levelCards.show(lph,"Extra Credit");
+                    levelCards.show(lph,"ExtraCredit");
                 }
             }
 

@@ -43,7 +43,8 @@ public class HighScorePanel extends JPanel
         add(titlePanel, BorderLayout.NORTH);
 
         JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBackground(new Color((240,240,245)));
+        contentPanel.setBackground(new Color(240,240,245));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(40, 80, 40, 80));
         add(contentPanel, BorderLayout.CENTER);
 
         JPanel scoresContainer = new JPanel(new BorderLayout());
@@ -117,15 +118,21 @@ public class HighScorePanel extends JPanel
 
         String headerLine = String.format("   %-6s   %-" + 15 + "s   %8s",
                 "RANK", "PLAYER NAME", "SCORE");
-        displayText+= headerLine +"\n";
+        displayText += headerLine + "\n";
 
-        String seperator = "   ";
-        for(int i = 0; i<displayText;i++)
+        String separator = "   ";
+        for (int i = 0; i < headerLine.length() - 3; i++) {
+            separator += "-";
+        }
+        displayText += separator + "\n\n";
+
+        int displayCount = Math.min(count, 15);
+        for (int i = 0; i < displayCount; i++)
         {
             String rank = String.format("#%d", i + 1);
             String formattedScore = String.format("%,d", points[i]);
 
-            isplayText += String.format("   %-6s   %-" + 15 + "s   %8s\n",
+            displayText += String.format("   %-6s   %-" + 15 + "s   %8s\n",
                     rank, names[i], formattedScore);
         }
         displayText += "\n";

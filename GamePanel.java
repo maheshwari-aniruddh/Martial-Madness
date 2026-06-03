@@ -35,6 +35,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
     private JProgressBar myHealth, enemyHealth;
     private LevelPanelHolder lph;
     private String pictName;
+    private ComboQueue comboQueue;
     
     private Image[][] animationFrames;
     private Image[][] enemyFrames;
@@ -122,6 +123,8 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         enemyHealth = new JProgressBar(0,100);
         defaultImage = info.getMyImage("default.png");
         enemyDefaultImage = info.getMyImage("enemy_default.png");
+        comboQueue = new ComboQueue();
+        
 
         setLayout(new BorderLayout());
         JPanel healthPanel = new JPanel();
@@ -390,6 +393,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         {
             if(keyCode == KeyEvent.VK_F)
             {
+                comboQueue.addMove("Punch");
                 currentAnimation = PUNCH;
                 setAnimation(currentAnimation);
             }
@@ -400,16 +404,19 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             }
             else if(keyCode == KeyEvent.VK_V)
             {
+                comboQueue.addMove("Kick");
                 currentAnimation = KICK;
                 setAnimation(currentAnimation);
             }
             else if(keyCode == KeyEvent.VK_R)
             {
+                comboQueue.addMove("Uppercut");
                 currentAnimation = UPPERCUT;
                 setAnimation(currentAnimation);
             }
             else if(keyCode == KeyEvent.VK_E)
             {
+                comboQueue.addMove("Roundhouse");
                 currentAnimation = ROUNDHOUSE;
                 setAnimation(currentAnimation);
             }
@@ -448,6 +455,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         frameTimer.stop();
         countDownTimer.stop();
         enemyAttackTimer.stop();
+        comboQueue.clear();
         enemyHealthTimer.stop();
         countDownStarted = false;
     }
@@ -466,47 +474,83 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
         if (distance<=MAX_ATTACK_RANGE)
         {
-            if (animationPlaying == PUNCH || animationPlaying==KICK || animationPlaying == UPPERCUT
-                    || animationPlaying == ROUNDHOUSE)
+            String combo = comboQueue.checkCombo();
+            if(combo!=null)
+            {
+                if(combo.equals("Shadow Kick"))
+                {
+                    info.setPoints(5);
+                    attackIndicatorY = enemyImageY+150;
+                    showPlayerAttackIndicator = true;
+                    attackIndicatorX = enemyImageX +100;
+                    if(enemyImageX<imageX)
                     {
-                        int pushDistance = 0;
-                        if (animationPlaying == PUNCH)
-                        {
-                            info.setPoints(1);
-                            pushDistance = PUNCH_REBOUND;
-
-                            attackIndicatorY = enemyImageY + 100;
-                        }
-                        else if(animationPlaying == KICK)
-                        {
-                            info.setPoints(1);
-                            pushDistance = KICK_REBOUND;
-                            attackIndicatorY = enemyImageY+150;
-                        }
-                        else if(animationPlaying == UPPERCUT)
-                        {
-                            info.setPoints(1);
-                            pushDistance = UPPERCUT_REBOUND;
-                            attackIndicatorY = enemyImageY+50;
-                        }
-                        else if(animationPlaying == ROUNDHOUSE)
-                        {
-                            info.setPoints(1);
-                            pushDistance = ROUNDHOUSE_REBOUND;
-                            attackIndicatorY = enemyImageY+100;
-                        }
-                        showPlayerAttackIndicator = true;
-
-                        attackIndicatorX = enemyImageX+100;
-                        if(enemyImageX<imageX)
-                        {
-                            enemyImageX = Math.max(0,enemyImageX - pushDistance);
-                        }
-                        else
-                        {
-                            enemyImageX = Math.min(600,enemyImageX+ pushDistance);
-                        }
+                        enemyImageX = Math.max(0,enemyImageX-250);
                     }
+                    else
+                        enemyImageX = Math.min(600,enemyImageX+250);
+                    int currentH = enemyHealth.getValue();
+                    enemyHealth.setValue(Math.max(0,currentH-25));
+
+                    return;
+                }
+                else if(combo.equals("Hurricane Kick"))
+                {
+                    info.setPoints(8);
+                    attackIndicatorY = enemyImageY+100;
+                    showPlayerAttackIndicator = true;
+                    attackIndicatorX = enemyImageX+100;
+                    if(enemyImageX<imageX)
+                    {
+                        enemyImageX = Math.max(0,enemyImageX-300);
+                    }
+                    else
+                        enemyImageX = Math.min(600,enemyImageX+300);
+                    int currentH = enemyHealth.getValue();
+                    enemyHealth.setValue(Math.max(0, currentH - 35));
+
+                    return;
+                }
+            }
+            if(animationPlaying==PUNCH || animationPlaying ==KICK|| animationPlaying ==UPPERCUT || animationPlaying == ROUNDHOUSE)
+            {
+                int pushDistance = 0;
+                if(animationPlaying == PUNCH)
+                {
+                    info.setPoints(1);
+                    pushDistance = PUNCH_REBOUND;
+                    attackIndicatorY = enemyImageY + 100;
+                }
+                else if(animationPlaying == KICK)
+                {
+                    info.setPoints(1);
+                    pushDistance = KICK_REBOUND;
+                    attackIndicatorY = enemyImageY+150;
+                }
+                else if(animationPlaying == UPPERCUT)
+                {
+                    info.setPoints(1);
+                    pushDistance = UPPERCUT_REBOUND;
+                    attackIndicatorY = enemyImageY+50;
+                }
+                else if(animationPlaying == ROUNDHOUSE)
+                {
+                    info.setPoints(1);
+                    pushDistance = ROUNDHOUSE_REBOUND;
+                    attackIndicatorY = enemyImageY+100;
+                }
+                showPlayerAttackIndicator = true;
+                attackIndicatorX = enemyImageX+100;
+
+                if(enemyImageX<imageX)
+                {
+                    enemyImageX = Math.max(0, enemyImageX-pushDistance);
+                }
+                else
+                {
+                    enemyImageX = Math.min(600,enemyImageX+pushDistance);
+                }
+            }
         }
     }
 
@@ -517,6 +561,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         firstTime = true;
         gameOver = -1;
         countDownStarted = false;
+        comboQueue.clear();
 
         imageX = 200;
         imageY = 215;

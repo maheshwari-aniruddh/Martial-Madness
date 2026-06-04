@@ -81,11 +81,13 @@ class MartialMadnessHolder extends JPanel
         FirstPagePanel fpp = new FirstPagePanel(this, cards, info);
         LevelPanelHolder lph = new LevelPanelHolder(this, cards, info);
         HighScorePanel hsp = new HighScorePanel(this, cards, lph, info);
+        CharacterSelectPanel csp = new CharacterSelectPanel(this, cards, info);
 
         add(fpp, "First");
         add(hsp, "HighScores");
         add(ip, "Instructions");
         add(lph, "LevelHolder");
+        add(csp, "CharSelect");
 
     }
 
@@ -266,7 +268,7 @@ class InstructionPanel extends JPanel
                 if (command.equals("Back"))
                     cards.show(mmh, "First");
                 else if ((command.equals("Continue")))
-                    cards.show(mmh, "LevelHolder");
+                    cards.show(mmh, "CharSelect");
                 else if (command.equals("Quit"))
                     System.exit(1);
 
@@ -339,33 +341,33 @@ class InstructionPanel extends JPanel
         JPanel westPanel = new JPanel();
         Color westColor = new Color(152, 194, 152);
         westPanel.setBackground(westColor);
-        westPanel.setBorder(BorderFactory.createEmptyBorder(0,0,0,20));
+        westPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 20));
         westPanel.setLayout(new BorderLayout());
         JLabel westPanelLabel = new JLabel("Game Play Pictures:");
-        westPanelLabel.setFont(new Font("Dialog", Font.BOLD,15));
-        westPanel.add(westPanelLabel,BorderLayout.EAST);
+        westPanelLabel.setFont(new Font("Dialog", Font.BOLD, 15));
+        westPanel.add(westPanelLabel, BorderLayout.NORTH);
 
         ImagePanel ip = new ImagePanel(mmh, info);
-        westPanel.add(ip,BorderLayout.CENTER);
+        westPanel.add(ip, BorderLayout.CENTER);
         add(westPanel, BorderLayout.EAST);
 
         InstructionButtonHandler ibh = new InstructionButtonHandler();
         JPanel southPanel = new JPanel();
-        Color southColor = new Color(50,205,50);
+        Color southColor = new Color(50, 205, 50);
         southPanel.setBackground(southColor);
-        southPanel.setLayout(new FlowLayout(FlowLayout.LEFT,100,30));
+        southPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 100, 30));
         JButton goBack = new JButton("Back");
         goBack.addActionListener(ibh);
-        goBack.setPreferredSize(new Dimension(100,40));
+        goBack.setPreferredSize(new Dimension(100, 40));
         continueButton.addActionListener(ibh);
 
         JButton quitButton = new JButton("Quit");
         quitButton.addActionListener(ibh);
-        quitButton.setPreferredSize(new Dimension(100,40));
+        quitButton.setPreferredSize(new Dimension(100, 40));
         southPanel.add(goBack);
         southPanel.add(continueButton);
         southPanel.add(quitButton);
-        add(southPanel,BorderLayout.SOUTH);
+        add(southPanel, BorderLayout.SOUTH);
     }
 
     class ImagePanel extends JPanel
@@ -376,23 +378,22 @@ class InstructionPanel extends JPanel
         public ImagePanel(MartialMadnessHolder mmhIn, Information infoIn)
         {
             info = infoIn;
-            setBackground(new Color(152,194,152));
+            setBackground(new Color(152, 194, 152));
             mmh = mmhIn;
+            setPreferredSize(new Dimension(180, 450));
         }
 
-        //drawing the three pictures
+        // drawing the three pictures
         public void paintComponent(Graphics g)        
         {
             super.paintComponent(g);
             Image pic1 = info.getMyImage("pic1.png");
             Image pic2 = info.getMyImage("pic2.png");
             Image pic3 = info.getMyImage("pic3.png");
-            g.drawImage(pic1, 0,0,160,140,this);
-            g.drawImage(pic2,0,150,160,140,this);
-            g.drawImage(pic3,0,300,160,130,this);
-
+            g.drawImage(pic1, 10, 10, 160, 140, this);
+            g.drawImage(pic2, 10, 160, 160, 140, this);
+            g.drawImage(pic3, 10, 310, 160, 130, this);
         }
-
     }
 }
 
@@ -402,6 +403,8 @@ class LevelPanelHolder extends JPanel
     private CardLayout cards;
     private Information info;
     private LevelPanel lp;
+    private GamePanel tutorialGP;
+    private GamePanel[] levelsGPs = new GamePanel[6];
 
     public LevelPanelHolder(MartialMadnessHolder mmhIn, CardLayout cardsIn, Information infoIn)
     {
@@ -422,8 +425,8 @@ class LevelPanelHolder extends JPanel
 
         lp = new LevelPanel(this,levelCards,mmh,cards,info);
         add(lp,"Levels");
-        GamePanel gp1 = new GamePanel(mmh, cards,this,info,"clouds.jpg",level1);
-        Tutorial tp = new Tutorial(mmh,cards,this,gp1,info);
+        tutorialGP = new GamePanel(mmh, cards,this,info,"clouds.jpg",level1);
+        Tutorial tp = new Tutorial(mmh,cards,this,tutorialGP,info);
         add(tp,"Tutorial");
         ExtraCredit ec = new ExtraCredit(mmh,cards,this,info);
         add(ec,"ExtraCredit");
@@ -432,11 +435,25 @@ class LevelPanelHolder extends JPanel
         String[] backGroundPicNames = {"canyon.jpeg","desert.jpg","forest.jpg","mystical.jpg","rural_pasture.jpg","tents.jpg"};
         for(int i=0;i<6;i++)
         {
-            GamePanel gp = new GamePanel(mmh,cards,this,info,backGroundPicNames[i],levels[i]);
-            add(gp,"GamePanel" + (i));
+            levelsGPs[i] = new GamePanel(mmh,cards,this,info,backGroundPicNames[i],levels[i]);
+            add(levelsGPs[i],"GamePanel" + (i));
     
         }
 
+    }
+
+    public void startTutorial()
+    {
+        tutorialGP.initializeLevel();
+        CardLayout cl = (CardLayout) getLayout();
+        cl.show(this, "Tutorial");
+    }
+
+    public void startLevel(int levelNum)
+    {
+        levelsGPs[levelNum].initializeLevel();
+        CardLayout cl = (CardLayout) getLayout();
+        cl.show(this, "GamePanel" + levelNum);
     }
 }
 
@@ -465,31 +482,31 @@ class LevelPanel extends JPanel
                 String command = evt.getActionCommand();
                 if(command.equals("Tutorial"))
                 {
-                    levelCards.show(lph,"Tutorial");
+                    lph.startTutorial();
                 }
                 else if(command.equals("Level 1"))
                 {
-                    levelCards.show(lph,"GamePanel0");
+                    lph.startLevel(0);
                 }
                 else if(command.equals("Level 2"))
                 {
-                    levelCards.show(lph,"GamePanel1");
+                    lph.startLevel(1);
                 }
                 else if (command.equals("Level 3"))
                 {
-                    levelCards.show(lph,"GamePanel2");
+                    lph.startLevel(2);
                 }
                 else if(command.equals("Level 4"))
                 {
-                    levelCards.show(lph,"GamePanel3");
+                    lph.startLevel(3);
                 }
                 else if(command.equals("Level 5"))
                 {
-                    levelCards.show(lph,"GamePanel4");
+                    lph.startLevel(4);
                 }
                 else if(command.equals("Level 6"))
                 {
-                    levelCards.show(lph,"GamePanel5");
+                    lph.startLevel(5);
                 }
                 else if(command.equals("Extra Points"))
                 {
@@ -576,12 +593,24 @@ class Information
     private String name;
     private String outFileName;
     private PrintWriter pw;
+    private String characterType;
 
     public Information()
     {
         points = 0;
         levelComplete = 0;
         outFileName = "highscores.txt";
+        characterType = "default";
+    }
+
+    public String getCharacterType()
+    {
+        return characterType;
+    }
+
+    public void setCharacterType(String type)
+    {
+        characterType = type;
     }
 
     public int getPoints()
@@ -629,10 +658,22 @@ class Information
     public Image getImage(String pictName)
     {
         Image picture = null;
-        File pictFile = new File(pictName);
         try
         {
-            picture = ImageIO.read(pictFile);
+            // Normalize path separator for classpath resource lookup
+            String resourcePath = pictName.replace('\\', '/');
+            if (!resourcePath.startsWith("/")) {
+                resourcePath = "/" + resourcePath;
+            }
+            java.net.URL imgURL = getClass().getResource(resourcePath);
+            if (imgURL != null)
+            {
+                picture = ImageIO.read(imgURL);
+            }
+            else
+            {
+                picture = ImageIO.read(new File(pictName));
+            }
         }
         catch(IOException e)
         {
@@ -644,11 +685,23 @@ class Information
 
     public Scanner loadFile(String filePath)
     {
-        File file = new File(filePath);
         Scanner scanner = null;
         try
         {
-            scanner = new Scanner(file);
+            String resourcePath = filePath.replace('\\', '/');
+            if (!resourcePath.startsWith("/")) {
+                resourcePath = "/" + resourcePath;
+            }
+            java.io.InputStream in = getClass().getResourceAsStream(resourcePath);
+            if (in != null)
+            {
+                scanner = new Scanner(in);
+            }
+            else
+            {
+                File file = new File(filePath);
+                scanner = new Scanner(file);
+            }
         }
         catch(FileNotFoundException e)
         {

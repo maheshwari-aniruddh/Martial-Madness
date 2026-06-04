@@ -47,6 +47,22 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
     private Image defaultImage;
     private Image enemyDefaultImage;
 
+    // Fields for dynamic character dynamic switching
+    private Image[][] defaultPlayerFrames;
+    private Image defaultPlayerStance;
+    private Image[][] defaultEnemyFrames;
+    private Image defaultEnemyStance;
+
+    private Image[][] ryuPlayerFrames;
+    private Image ryuPlayerStance;
+    private Image[][] ryuEnemyFrames;
+    private Image ryuEnemyStance;
+
+    private Image[][] zangiefPlayerFrames;
+    private Image zangiefPlayerStance;
+    private Image[][] zangiefEnemyFrames;
+    private Image zangiefEnemyStance;
+
 
     private final int PUNCH = 0;
     private final int BLOCK = 1;
@@ -121,8 +137,28 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         enemyProgressColor = Color.GREEN;
         myHealth = new JProgressBar(0,100);
         enemyHealth = new JProgressBar(0,100);
-        defaultImage = info.getMyImage("default.png");
-        enemyDefaultImage = info.getMyImage("enemy_default.png");
+        defaultPlayerStance = info.getMyImage("animations/default/default.png");
+        ryuPlayerStance = info.getMyImage("animations/ryu/default.png");
+        zangiefPlayerStance = info.getMyImage("animations/zangief/default.png");
+
+        defaultEnemyStance = info.getMyImage("enemy_animations/default/default.png");
+        ryuEnemyStance = info.getMyImage("enemy_animations/ryu/default.png");
+        zangiefEnemyStance = info.getMyImage("enemy_animations/zangief/default.png");
+
+        defaultPlayerFrames = loadCharacterAnimations("animations/default", defaultPlayerStance, false);
+        ryuPlayerFrames = loadCharacterAnimations("animations/ryu", ryuPlayerStance, false);
+        zangiefPlayerFrames = loadCharacterAnimations("animations/zangief", zangiefPlayerStance, false);
+
+        defaultEnemyFrames = loadCharacterAnimations("enemy_animations/default", defaultEnemyStance, true);
+        ryuEnemyFrames = loadCharacterAnimations("enemy_animations/ryu", ryuEnemyStance, true);
+        zangiefEnemyFrames = loadCharacterAnimations("enemy_animations/zangief", zangiefEnemyStance, true);
+
+        // Point active references to default character initially
+        defaultImage = defaultPlayerStance;
+        animationFrames = defaultPlayerFrames;
+        enemyDefaultImage = defaultEnemyStance;
+        enemyFrames = defaultEnemyFrames;
+
         comboQueue = new ComboQueue();
         
 
@@ -151,9 +187,6 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
         myHealth.addChangeListener(this);
         enemyHealth.addChangeListener(this);
-
-        loadAnimations("animations");
-        loadAnimations("enemy_animations");
 
         FixedPanelHolder fph = new FixedPanelHolder(mmh, cards, true, lph);
 
@@ -259,24 +292,9 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
     }
 
-    public void loadAnimations(String inputDir)
+    public Image[][] loadCharacterAnimations(String inputDir, Image defaultFrame, boolean isEnemy)
     {
-        boolean isEnemy = inputDir.equals("enemy_animations");
-        Image defaultFrame;
-        Image [][] target;
-
-        if(isEnemy)
-        {
-            enemyFrames = new Image[TOTAL_ANIMATIONS][];
-            defaultFrame = info.getMyImage("enemy_default.png");
-            target = enemyFrames;
-        }
-        else
-        {
-            animationFrames = new Image[TOTAL_ANIMATIONS][];
-            defaultFrame = info.getMyImage("default.png");
-            target = animationFrames;
-        }
+        Image[][] target = new Image[TOTAL_ANIMATIONS][];
 
         target[PUNCH] = new Image[4];
         target[PUNCH][0] = defaultFrame;
@@ -315,8 +333,6 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         target[ROUNDHOUSE][8] = info.getMyImage(inputDir+"/roundhouse_animations/frame8.png");
         target[ROUNDHOUSE][9] = info.getMyImage(inputDir+"/roundhouse_animations/frame9.png");
 
-
-
         if (isEnemy==true)
         {
             target[FORWARD] = new Image[6];
@@ -352,9 +368,13 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             target[BACKWARD][3] = info.getMyImage(inputDir+"/backward_animation/frame3.png");
             target[BACKWARD][4] = info.getMyImage(inputDir+"/backward_animation/frame4.png");
             target[BACKWARD][5] = info.getMyImage(inputDir+"/backward_animation/frame5.png");
-        
-
         }
+        return target;
+    }
+
+    public Image getDefaultImage()
+    {
+        return defaultImage;
     }
 
     public Image[][] getAnimationArray()
@@ -556,6 +576,24 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
     public void initializeLevel()
     {
+        String type = info.getCharacterType();
+        if ("ninja".equals(type)) {
+            animationFrames = ryuPlayerFrames;
+            defaultImage = ryuPlayerStance;
+            enemyFrames = ryuEnemyFrames;
+            enemyDefaultImage = ryuEnemyStance;
+        } else if ("sumo".equals(type)) {
+            animationFrames = zangiefPlayerFrames;
+            defaultImage = zangiefPlayerStance;
+            enemyFrames = zangiefEnemyFrames;
+            enemyDefaultImage = zangiefEnemyStance;
+        } else {
+            animationFrames = defaultPlayerFrames;
+            defaultImage = defaultPlayerStance;
+            enemyFrames = defaultEnemyFrames;
+            enemyDefaultImage = defaultEnemyStance;
+        }
+
         haveWon = false;
         pointGiven = true;
         firstTime = true;

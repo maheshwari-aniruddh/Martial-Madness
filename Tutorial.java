@@ -25,6 +25,7 @@ class Tutorial extends JPanel implements KeyListener, ActionListener
     private LevelPanelHolder lph; // the instance of the level panel holder
     private Image bottom; // bottom floor image
     private Image[][] myFrames;
+    private GamePanel gp;
 
     private String[] instructions; // string array containing the keybind instruction
     private int step; // the key pressed by user
@@ -56,9 +57,10 @@ class Tutorial extends JPanel implements KeyListener, ActionListener
         mmh = mmhIn;
         cards = cardsIn;
         lph = lphIn;
+        gp = gpIn;
         defaultImage = info.getImage("default.png");
         bottom = info.getImage("bottom copy.png");
-        myFrames = gpIn.getAnimationArray();
+        myFrames = gp.getAnimationArray();
         FixedPanelHolder fph = new FixedPanelHolder(mmh, cards, true, lph);
         setLayout(new BorderLayout());
         clouds = info.getImage("clouds.jpg");
@@ -211,7 +213,8 @@ class Tutorial extends JPanel implements KeyListener, ActionListener
                 }
 
                 // Move to the next frame if available
-                if (currentFrame < myFrames[animationPlaying].length - 1)
+                Image[][] activeFrames = gp.getAnimationArray();
+                if (currentFrame < activeFrames[animationPlaying].length - 1)
                 {
                     currentFrame++;
                 }
@@ -247,11 +250,12 @@ class Tutorial extends JPanel implements KeyListener, ActionListener
 
         if (animationPlaying >= 0 && animationPlaying < TOTAL_ANIMATIONS)
         {
-            g.drawImage(myFrames[animationPlaying][currentFrame], imageX, imageY, 200, 200, this);
+            Image[][] activeFrames = gp.getAnimationArray();
+            g.drawImage(activeFrames[animationPlaying][currentFrame], imageX, imageY, 200, 200, this);
         }
         else
         {
-            g.drawImage(defaultImage, imageX, imageY, 200, 200, this);
+            g.drawImage(gp.getDefaultImage(), imageX, imageY, 200, 200, this);
         }
         // draw the instructions after every step
         if (step < instructions.length)

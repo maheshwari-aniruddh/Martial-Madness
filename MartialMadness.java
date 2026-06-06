@@ -405,6 +405,7 @@ class LevelPanelHolder extends JPanel
     private LevelPanel lp;
     private GamePanel tutorialGP;
     private GamePanel[] levelsGPs = new GamePanel[6];
+    private PracticeArenaPanel practiceArenaPanel;
 
     public LevelPanelHolder(MartialMadnessHolder mmhIn, CardLayout cardsIn, Information infoIn)
     {
@@ -437,9 +438,23 @@ class LevelPanelHolder extends JPanel
         {
             levelsGPs[i] = new GamePanel(mmh,cards,this,info,backGroundPicNames[i],levels[i]);
             add(levelsGPs[i],"GamePanel" + (i));
-    
         }
 
+        practiceArenaPanel = new PracticeArenaPanel(this, levelCards, info);
+        practiceArenaPanel.setOpaque(false);
+
+        JPanel practiceWrapper = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Image bg = info.getMyImage("dojo.png");
+                if (bg != null) {
+                    g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        };
+        practiceWrapper.add(practiceArenaPanel, BorderLayout.CENTER);
+        add(practiceWrapper, "PracticeArena");
     }
 
     public void startTutorial()
@@ -454,6 +469,13 @@ class LevelPanelHolder extends JPanel
         levelsGPs[levelNum].initializeLevel();
         CardLayout cl = (CardLayout) getLayout();
         cl.show(this, "GamePanel" + levelNum);
+    }
+
+    public void startPracticeArena()
+    {
+        practiceArenaPanel.startArena();
+        CardLayout cl = (CardLayout) getLayout();
+        cl.show(this, "PracticeArena");
     }
 }
 
@@ -511,6 +533,10 @@ class LevelPanel extends JPanel
                 else if(command.equals("Extra Points"))
                 {
                     levelCards.show(lph,"ExtraCredit");
+                }
+                else if(command.equals("Practice Arena"))
+                {
+                    lph.startPracticeArena();
                 }
             }
 
@@ -570,6 +596,10 @@ class LevelPanel extends JPanel
         level7.setPreferredSize(new Dimension(150,100));
         level7.addActionListener(bh);
 
+        JButton level8 = new JButton("Practice Arena");
+        level8.setPreferredSize(new Dimension(150,100));
+        level8.addActionListener(bh);
+
         centerPanel.add(level0);
         centerPanel.add(level1);
         centerPanel.add(level2);
@@ -578,6 +608,7 @@ class LevelPanel extends JPanel
         centerPanel.add(level5);
         centerPanel.add(level6);
         centerPanel.add(level7);
+        centerPanel.add(level8);
         add(centerPanel,BorderLayout.CENTER);
 
         FixedPanelHolder fph = new FixedPanelHolder(mmh,cards,false,lph);

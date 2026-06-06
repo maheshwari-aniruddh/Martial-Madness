@@ -1,4 +1,3 @@
-import javax.smartcardio.Card;
 import javax.swing.*;
 import javax.swing.border.Border;
 
@@ -11,7 +10,7 @@ public class PracticeArenaPanel extends JPanel implements ActionListener, KeyLis
 {
     private final JPanel parentHolder;
     private final CardLayout cardLayout;
-    private final Infomation gameInfo;
+    private final Information gameInfo;
 
     private Timer arenaTimer;
     private int simulationTime;
@@ -30,7 +29,7 @@ public class PracticeArenaPanel extends JPanel implements ActionListener, KeyLis
     private double blockSuccessRate = 0.0;
     
     private JSlider enemySpeedSlider;
-    private JSLider attackRateSlider;
+    private JSlider attackRateSlider;
     private JComboBox<String> opponentStyleSelector;
 
     private JTextArea inputLogArea;
@@ -76,7 +75,7 @@ public class PracticeArenaPanel extends JPanel implements ActionListener, KeyLis
         ));
         JLabel styleLabel = new JLabel("Oppenent Archetype:");
         styleLabel.setForeground(Color.WHITE);
-        styleLabel.setFont(new Font("Monospaced",Font.PLAIN.,12);
+        styleLabel.setFont(new Font("Monospaced", Font.PLAIN, 12));
         styleLabel.setBounds(15,30,210,20);
         controlPanel.add(styleLabel);
 
@@ -100,7 +99,7 @@ public class PracticeArenaPanel extends JPanel implements ActionListener, KeyLis
         enemySpeedSlider.setMajorTickSpacing(1);
         enemySpeedSlider.setPaintTicks(true);
         enemySpeedSlider.setPaintLabels(true);
-        controlPanel.add(rateLabel);
+        controlPanel.add(enemySpeedSlider);
 
         JLabel rateLabel = new JLabel("Attack Interval (sec)");
         rateLabel.setForeground(Color.WHITE);
@@ -125,14 +124,14 @@ public class PracticeArenaPanel extends JPanel implements ActionListener, KeyLis
     }
 
     private void initializeDashboard(){
-        JLabel logLabel - new JLabel("Live Input Buffer:");
+        JLabel logLabel = new JLabel("Live Input Buffer:");
         logLabel.setForeground(Color.CYAN);
         logLabel.setFont(new Font("Monospaced", Font.BOLD,14));
         logLabel.setBounds(20,20,200,20);
         add(logLabel);
 
         inputLogArea = new JTextArea();
-        inputLogArea.setFont("Monospaced",Font.PLAIN,13);
+        inputLogArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
         inputLogArea.setForeground(Color.WHITE);
         inputLogArea.setBackground(Color.GREEN);
         inputLogArea.setEditable(false);
@@ -165,7 +164,7 @@ public class PracticeArenaPanel extends JPanel implements ActionListener, KeyLis
         statsPanel.setBackground(new Color(25,30,40));
         statsPanel.setBorder(BorderFactory.createLineBorder(new Color (255,255,255,30)));
 
-        statsLabel = new JLabel("<html><b>TRAINING PERFORMANCE LOGS:</b<>br/>" +
+        statsLabel = new JLabel("<html><b>TRAINING PERFORMANCE LOGS:</b><br/>" +
             "Total Attacks: 0 | Succesful Blocks: 0<br/>" +
             "Block Success Rate: 0.0%<br/>" +
             "Average Reflex Response Time: 0ms</html>");
@@ -224,9 +223,222 @@ public class PracticeArenaPanel extends JPanel implements ActionListener, KeyLis
 
      private void updateDashboardTexts()
      {
-        long avgReflext;
-     }
-    
-   
+        long avgReflex = succesfulBlocks > 0 ? (totalReactionTimeMs / succesfulBlocks) : 0;
+        blockSuccessRate = totalEnemyAttacks > 0 ? (((double) succesfulBlocks / totalEnemyAttacks) * 100) : 0.0;
+        
+        statsLabel.setText(String.format(
+            "<html><b>TRAINING PERFORMANCE LOGS:</b><br/>" +
+            "Total Attacks: %d | Successful Blocks: %d<br/>" +
+            "Block Success Rate: %.1f%%<br/>" +
+            "Average Reflex Response Time: %d ms</html>",
+            totalEnemyAttacks, succesfulBlocks, blockSuccessRate, avgReflex
+        ));
 
+        // Update Log Area (display last 8 logged items using your SinglyLinkedList nodes)
+        StringBuilder logBuilder = new StringBuilder();
+        int logSize = loggedInputs.size();
+        int logStartIndex = Math.max(0, logSize - 8);
+        ListNode<String> currentLog = loggedInputs.getHead();
+        int idx = 0;
+        while (currentLog != null) {
+            if (idx >= logStartIndex) {
+                logBuilder.append(currentLog.getValue()).append("\n");
+            }
+            currentLog = currentLog.getNext();
+            idx++;
+        }
+        inputLogArea.setText(logBuilder.toString());
+
+        // Update Combos Area
+        StringBuilder comboBuilder = new StringBuilder();
+        int comboSize = detectedCombos.size();
+        int comboStartIndex = Math.max(0, comboSize - 8);
+        ListNode<String> currentCombo = detectedCombos.getHead();
+        idx = 0;
+        while (currentCombo != null) {
+            if (idx >= comboStartIndex) {
+                comboBuilder.append(currentCombo.getValue()).append("\n");
+            }
+            currentCombo = currentCombo.getNext();
+            idx++;
+        }
+        comboConsole.setText(comboBuilder.toString());
+    }
+
+    private void simulateEnemyAttack()
+    {
+        if (isEnemyAttacking) return;
+        
+        isEnemyAttacking = true;
+        totalEnemyAttacks++;
+        dummyEnemyAction = "ATTACK";
+        enemyAttackStartTime = System.currentTimeMillis();
+        
+        // Auto-reset enemy pose after 400ms if not blocked
+        Timer windDown = new Timer(400, e -> {
+            if (isEnemyAttacking) {
+                isEnemyAttacking = false;
+                dummyEnemyAction = "STANCE";
+                updateDashboardTexts();
+            }
+        });
+        windDown.setRepeats(false);
+        windDown.start();
+        
+        updateDashboardTexts();
+    }
+
+    // Central loop tick running at 30 FPS
+    @Override
+    public void actionPerformed(ActionEvent e)
+    {
+        simulationTime++;
+        
+        // Dynamic automatic attacks based on slider frequency settings
+        int intervalFrames = attackRateSlider.getValue() * 30;
+        if (simulationTime % intervalFrames == 0) {
+            simulateEnemyAttack();
+        }
+
+        // Keep focus
+        if (simulationTime % 30 == 0) {
+            requestFocusInWindow();
+        }
+
+        repaint();
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e)
+    {
+        int key = e.getKeyCode();
+        String inputKey = "";
+
+        if (key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN) {
+            inputKey = "BLOCK";
+            dummyPlayerAction = "BLOCKING";
+        } else if (key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT) {
+            inputKey = "BACKWARD";
+            dummyPlayerX = Math.max(50, dummyPlayerX - 8);
+        } else if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT) {
+            inputKey = "FORWARD";
+            dummyPlayerX = Math.min(300, dummyPlayerX + 8);
+        } else if (key == KeyEvent.VK_J) {
+            inputKey = "KICK";
+            dummyPlayerAction = "KICKING";
+        } else if (key == KeyEvent.VK_K) {
+            inputKey = "PUNCH";
+            dummyPlayerAction = "PUNCHING";
+        }
+
+        if (!inputKey.isEmpty()) {
+            registerPlayerInput(inputKey);
+        }
+    }
+
+    private void registerPlayerInput(String inputKey)
+    {
+        long now = System.currentTimeMillis();
+        loggedInputs.addLast(inputKey + " @ " + now % 100000 + "ms");
+
+        // Add to active combo parsing buffer
+        inputBuffer.addLast(inputKey);
+        if (inputBuffer.size() > 4) {
+            inputBuffer.remove(0); // Pop first item to maintain size of 4
+        }
+
+        // 1. Evaluate Reaction Reflex
+        if (inputKey.equals("BLOCK") && isEnemyAttacking) {
+            isEnemyAttacking = false;
+            dummyEnemyAction = "STANCE";
+            succesfulBlocks++;
+            long reflexMs = now - enemyAttackStartTime;
+            totalReactionTimeMs += reflexMs;
+            detectedCombos.addLast("REFLEX BLOCK: " + reflexMs + "ms!");
+        }
+
+        // 2. Evaluate Combo Patterns
+        checkComboSequences();
+        updateDashboardTexts();
+    }
+
+    private void checkComboSequences()
+    {
+        // Construct string representing key sequence in the SinglyLinkedList
+        StringBuilder sequence = new StringBuilder();
+        ListNode<String> current = inputBuffer.getHead();
+        while (current != null) {
+            sequence.append(current.getValue()).append("->");
+            current = current.getNext();
+        }
+        String segStr = sequence.toString();
+        if(segStr.contains("BACKWARD->BLOCK->PUNCH")){
+            detectedCombos.addLast("COMBO: Perfect Parry Counter!");
+            inputBuffer.clear();
+        }
+        else if(segStr.contains("BLOCK->KICK->PUNCH"))
+        {
+            detectedCombos.addLast("COMBO: Shield Smash Combo!");
+            inputBuffer.clear();
+        }
+    }
+
+    public void keyReleased(KeyEvent e)
+    {
+        int key = e.getKeyCode();
+        if(key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN || key == KeyEvent.VK_J || key == KeyEvent.VK_K)
+        {
+            dummyPlayerAction = "STANCE";
+        }
+
+    }
+
+    public void keyTyped(KeyEvent e){}
+
+    protected void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D)g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g2d.setColor(new Color(40,45,60));
+        g2d.fillRect(0,360,getWidth(),getHeight()-360);
+        g2d.setColor(new Color(60, 70, 90));
+        g2d.setStroke(new BasicStroke(3));
+        g2d.drawLine(0, 360, getWidth(), 360);
+
+        // Grid lines on floor for depth visual
+        g2d.setColor(new Color(50, 55, 75));
+        for (int i = 0; i < getWidth(); i += 80) {
+            g2d.drawLine(i, 360, i - 100, getHeight());
+        }
+
+        // Render dummy characters (simplified silhouettes for practice representation)
+        // Draw Player Dummy
+        g2d.setColor(Color.CYAN);
+        g2d.drawString("PLAYER (Active Keys: A,D,S,J,K)", dummyPlayerX - 40, 405);
+        if (dummyPlayerAction.equals("BLOCKING")) {
+            g2d.fillRoundRect(dummyPlayerX - 25, 460, 50, 50, 10, 10); // Squat block stance
+        } else if (dummyPlayerAction.equals("KICKING")) {
+            g2d.fillRoundRect(dummyPlayerX - 25, 420, 50, 90, 10, 10);
+            g2d.fillRect(dummyPlayerX + 25, 460, 45, 15); // Extended leg
+        } else if (dummyPlayerAction.equals("PUNCHING")) {
+            g2d.fillRoundRect(dummyPlayerX - 25, 420, 50, 90, 10, 10);
+            g2d.fillRect(dummyPlayerX + 25, 435, 40, 15); // Extended fist
+        } else {
+            g2d.fillRoundRect(dummyPlayerX - 25, 420, 50, 90, 10, 10); // Idle standing
+        }
+
+        // Draw Enemy Dummy
+        g2d.setColor(Color.RED);
+        g2d.drawString("SIMULATOR DUMMY", dummyEnemyX - 35, 405);
+        if (dummyEnemyAction.equals("ATTACK")) {
+            g2d.fillRoundRect(dummyEnemyX - 25, 420, 50, 90, 10, 10);
+            g2d.setColor(Color.ORANGE);
+            g2d.fillRect(dummyEnemyX - 70, 435, 45, 15); // Striking forward
+        } else {
+            g2d.fillRoundRect(dummyEnemyX - 25, 420, 50, 90, 10, 10); // Idle
+        }
+    
+    }
 }   

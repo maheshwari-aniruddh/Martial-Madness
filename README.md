@@ -1,4 +1,4 @@
-# Martial Madness 🥋
+# Martial Madness 
 This game is about surviving(not hurting) the enemy until his health or the timer runs out. It's about self denseve. Each mvoe that you do can either block the enemy's attack or push him away. You can select between 3 characters. The default, the ninja and the sumo. Each player has its own advantaged and weaknesses.
 ---
 Why I made it:

@@ -1,27 +1,24 @@
 # Martial Madness 🥋
+This game is about surviving(not hurting) the enemy until his health or the timer runs out. It's about self denseve. Each mvoe that you do can either block the enemy's attack or push him away. You can select between 3 characters. The default, the ninja and the sumo. Each player has its own advantaged and weaknesses.
+---
+Why I made it:
+- I really like the og street fighter and i always wanted to code it for myself. However to make it different, i realized that its isnt always about hurting the enemy but rather more about protecting yourself so i decided to make it more self defense focused.
 
-Martial Madness is a 2D single-player self-defense survival game built in Java Swing. Your goal is simple: **survive for 60 seconds against a scaling AI opponent.**
 
+
+## How to Play 
+- Use the tutorial for more detailed informaiotn about how to play the game.
+space to restart
+D to block
+F to punch
+V to kick
+R to uppercut
+E to roundhouse kick
 ---
 
-## 🎮 How to Play (Controls)
+## How to Run the Game
 
-Use your keyboard to move, block, and execute defensive counter-moves:
-
-| Key | Action | Description |
-| :--- | :--- | :--- |
-| **A** (or ⬅️ Left Arrow) | **Move Left** | Back away from the enemy to create space |
-| **D** (or ➡️ Right Arrow) | **Move Right** | Move closer to the enemy |
-| **S** (or ⬇️ Down Arrow) | **Block** | Crouch down to block incoming strikes |
-| **J** | **Kick** | Quick low counter-attack |
-| **K** | **Punch** | Fast mid counter-attack |
-| **L** | **Uppercut** | High-damage counter-attack |
-
----
-
-## 🚀 How to Run the Game
-
-### Option 1: Play Immediately (No coding required)
+### Option 1: Play Immediatly
 1. Download the **`MartialMadness_Game.zip`** file from our [Releases Page](https://github.com/maheshwari-aniruddh/Martial-Madness/releases/tag/v1.0.0).
 2. Extract the zip file.
 3. Open your Terminal, navigate to the extracted folder, and run:
@@ -40,10 +37,3 @@ If you want to run the raw source code files:
    java MartialMadness
    ```
 
----
-
-## ✨ Game Rules & Tips
-
-- **Survive the Timer**: Watch the countdown bar at the bottom. You win if you last 60 seconds!
-- **Counter-Attack**: Use Kicks, Punches, and Uppercuts only when the enemy is in range to push them back and buy yourself time.
-- **De-escalate**: Answer the situational self-defense questions correctly between rounds to score bonus points!

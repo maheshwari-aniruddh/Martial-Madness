@@ -404,6 +404,7 @@ class LevelPanelHolder extends JPanel
     private Information info;
     private LevelPanel lp;
     private GamePanel tutorialGP;
+    private PracticeArenaPanel practiceArenaPanel;
     private GamePanel[] levelsGPs = new GamePanel[6];
 
     public LevelPanelHolder(MartialMadnessHolder mmhIn, CardLayout cardsIn, Information infoIn)

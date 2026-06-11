@@ -4,7 +4,8 @@ This game is about surviving(not hurting) the enemy until his health or the time
 Why I made it:
 - I really like the og street fighter and i always wanted to code it for myself. However to make it different, i realized that its isnt always about hurting the enemy but rather more about protecting yourself so i decided to make it more self defense focused.
 
-
+**Note** Here is the demo url since hackclub doesn't allow me to post a cdn link of the demo. 
+https://cdn.hackclub.com/019ea2c6-baa3-766b-82ee-7daf02664bff/Screen%20Recording%202026-06-03%20at%209.31.22%E2%80%AFPM.mov
 
 ## How to Play 
 - Use the tutorial for more detailed informaiotn about how to play the game.

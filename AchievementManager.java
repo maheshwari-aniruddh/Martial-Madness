@@ -4,10 +4,10 @@ import java.util.Set;
 
 public class AchievementManager
 {
-    private static final String FILE = "achievements.txt"
+    private static final String FILE = "achievements.txt";
     private static Set<String> unlocked = null;
 
-    private static Set<String>load()
+    private static Set<String> load()
     {
         if(unlocked != null) return unlocked;
         unlocked = new HashSet<>();
@@ -34,6 +34,12 @@ public class AchievementManager
         return unlocked;
     }
 
+    private static HashSet<String> getUnlockedSet()
+    {
+        if(unlocked == null) load();
+        return (HashSet<String>) unlocked;
+    }
+
     private static void unlock(String name)
     {
         HashSet<String> set = getUnlockedSet();
@@ -45,7 +51,7 @@ public class AchievementManager
         System.out.println("Achievement Unlocked: "+name);
 
         try{
-            PrintWriter pw = new PrintWriter(new FileWriter(SAVE_FILE,true));
+            PrintWriter pw = new PrintWriter(new FileWriter(FILE,true));
             pw.println(name);
             pw.close();
         }
@@ -70,12 +76,12 @@ public class AchievementManager
 
             if(lvl == 5)
             {
-                unlock("GrandMaster")
+                unlock("GrandMaster");
             }
         }
-        else if(event.startsWith("combo: "))
+        else if(event.startsWith("combo:"))
         {
-            String comboName = event.replace("combo:"."");
+            String comboName = event.replace("combo:", "");
             if(comboName.equals("Death Blossom"))
             {
                 unlock("Death Blossom");
@@ -110,7 +116,7 @@ public class AchievementManager
     public static String getSummary()
     {
         HashSet<String> set = getUnlockedSet();
-        String result = ""
+        String result = "";
 
         for(String s: set)
         {
@@ -119,7 +125,7 @@ public class AchievementManager
                 result = result + " *"+s+"\n";
             }
         }
-        if (result.equals(:""))
+        if (result.equals(""))
         {
             return " (none yet)";
         }

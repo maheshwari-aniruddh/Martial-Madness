@@ -19,17 +19,18 @@ E to roundhouse kick
 
 ## How to Run the Game
 
-### Option 1: Windows .exe (no terminal needed)
-1. Go to the [Releases Page](https://github.com/maheshwari-aniruddh/Martial-Madness/releases).
-2. Download **`MartialMadness.exe`** from the latest release.
-3. Double-click it to launch the game.
-4. **Requirement:** you need Java 8 or newer installed on your computer (the `.exe` is a launcher that runs the game through your installed Java, not a fully standalone binary). If you don't have Java, get it free from [java.com](https://www.java.com/download/) and the `.exe` will detect it automatically once installed.
+### Option 1: Windows .exe (recommended — no terminal needed)
+1. Download the executable directly: **[MartialMadness.exe](https://github.com/maheshwari-aniruddh/Martial-Madness/releases/download/v1.1.0/MartialMadness.exe)**
+2. Once downloaded, double-click `MartialMadness.exe` to launch the game.
+3. **Requirement:** you need Java 8 or newer installed on your computer. The `.exe` is a native Windows launcher that runs the game through your installed Java runtime — it is not a fully standalone binary, so Java must be present on the machine.
+   - To check if you already have Java, open Command Prompt and run `java -version`.
+   - If you don't have Java, download it free from [java.com/download](https://www.java.com/download/) and install it. No restart is required — the `.exe` will detect Java automatically once it's installed.
+4. **Windows SmartScreen / antivirus note:** since this `.exe` isn't code-signed, Windows may show a "Windows protected your PC" warning on first launch. Click **More info → Run anyway** to proceed. This is expected for unsigned indie executables and is not a sign of malware.
 
 ### Option 2: Cross-platform .jar (Windows, Mac, Linux)
-1. Go to the [Releases Page](https://github.com/maheshwari-aniruddh/Martial-Madness/releases).
-2. Download **`MartialMadness.jar`** from the latest release.
-3. Make sure you have Java 8+ installed (`java -version` in a terminal to check).
-4. Run it:
+1. Go to the [Releases Page](https://github.com/maheshwari-aniruddh/Martial-Madness/releases) and download **`MartialMadness.jar`** from the latest release.
+2. Make sure you have Java 8+ installed (`java -version` in a terminal to check).
+3. Run it:
    - Double-click the `.jar` file, **or**
    - Open a terminal in the folder containing it and run:
      ```bash

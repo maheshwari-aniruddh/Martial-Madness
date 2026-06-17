@@ -19,15 +19,24 @@ E to roundhouse kick
 
 ## How to Run the Game
 
-### Option 1: Play Immediatly
-1. Download the **`MartialMadness_Game.zip`** file from our [Releases Page](https://github.com/maheshwari-aniruddh/Martial-Madness/releases/tag/v1.0.0).
-2. Extract the zip file.
-3. Open your Terminal, navigate to the extracted folder, and run:
-   ```bash
-   java MartialMadness
-   ```
+### Option 1: Windows .exe (no terminal needed)
+1. Go to the [Releases Page](https://github.com/maheshwari-aniruddh/Martial-Madness/releases).
+2. Download **`MartialMadness.exe`** from the latest release.
+3. Double-click it to launch the game.
+4. **Requirement:** you need Java 8 or newer installed on your computer (the `.exe` is a launcher that runs the game through your installed Java, not a fully standalone binary). If you don't have Java, get it free from [java.com](https://www.java.com/download/) and the `.exe` will detect it automatically once installed.
 
-### Option 2: Compile from Source Code
+### Option 2: Cross-platform .jar (Windows, Mac, Linux)
+1. Go to the [Releases Page](https://github.com/maheshwari-aniruddh/Martial-Madness/releases).
+2. Download **`MartialMadness.jar`** from the latest release.
+3. Make sure you have Java 8+ installed (`java -version` in a terminal to check).
+4. Run it:
+   - Double-click the `.jar` file, **or**
+   - Open a terminal in the folder containing it and run:
+     ```bash
+     java -jar MartialMadness.jar
+     ```
+
+### Option 3: Compile from Source Code
 If you want to run the raw source code files:
 1. Compile the code:
    ```bash

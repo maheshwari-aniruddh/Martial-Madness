@@ -551,6 +551,329 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
         {
             gameStarted = true;
             frameTimer.start();
+            countDownTimer.start();
+            return;
+        }
+        if(k==KeyEvent.VK_SPACE && isGameOver)
+        {
+            initalizeMatch();
+            return;
+        }
+        if(isGameOver)
+        {
+            return;
+        }
+
+        if(k==KeyEvent.VK_SPACE)
+        {
+            p1Combo.addMove("Punch");
+            p1AnimPlaying = PUNCH;
+            p1Frame = 0;
+            p1Delay = 0;
+        }
+        if(k==KeyEvent.VK_D)
+        {
+            p1Combo.addMove("Block");
+            p1AnimPlaying = BLOCK;
+            p1Frame = 0;
+            p1Delay = 0;
+        }
+        if(k == KeyEvent.VK_V)
+        {
+            p1Combo.addMove("Kick");
+            p1AnimPlaying = KICK;
+            p1Frame = 0;
+            p1Delay = 0;
+        }
+        if(k == KeyEvent.VK_R)
+        {
+            p1Combo.addMove("Uppercut");
+            p1AnimPlaying = UPPERCUT;
+            p1Frame = 0;
+            p1Delay = 0;
+        }
+        if(k==KeyEvent.VK_E)
+        {
+            p1Combo.addMove("Roundhouse");
+            p1AnimPlaying = ROUNDHOUSE;
+            p1Frame = 0;
+            p1Delay = 0;
+        }
+        else if(k == KeyEvent.VK_LEFT)
+        {
+            p1AnimPlaying =BACKWARD;
+            p1Frame = 0;
+            p1Delay = 0;
+        }
+        else if(k ==KeyEvent.VK_RIGHT)
+        {
+            p1AnimPlaying = FORWARD;
+            p1Frame = 0;
+            p1Delay = 0;
+        }
+
+        // player 2 stuff
+        else if(k == KeyEvent.VK_NUMPAD7)
+        {
+            p2Combo.addMove("Punch");
+            p2AnimPlaying = PUNCH;
+            p2Frame = 0;
+            p2Delay = 0;
+        }
+        else if(k== KeyEvent.VK_NUMPAD4)
+        {
+            p2Combo.addMove("Block");
+            p2AnimPlaying = BLOCK;
+            p2Frame = 0;
+            p2Delay = 0;
+        }
+        else if (k = KeyEvent.VK_NUMPAD8)
+        {
+            p2Combo.addMove("Kick");
+            p2AnimPlaying = KICK;
+            p2Frame = 0;
+            p2Delay = 0;
+        }
+        else if(k== KeyEvent.VK_NUMPAD9)
+        {
+            p2Combo.addMove("Uppercut");
+            p2AnimPlaying = UPPERCUT;
+            p2Frame = 0;
+            p2Delay = 0;
+        }
+        else if(k ==KeyEvent.VK_NUMPAD6)
+        {
+            p2Combo.addMove("Roundhouse");
+            p2AnimPlaying = ROUNDHOUSE;
+            p2Frame = 0;
+            p2Delay = 0;
+        }
+        else if(k == KeyEvent.VK_NUMPAD1)
+        {
+            p2AnimPlaying = FORWARD;
+            p2Frame = 0;
+            p2Delay = 0;
+        }
+        else if(k == KeyEvent.VK_NUMPAD3)
+        {
+            p2AnimPlaying = BACKWARD;
+            p2Frame = 0;
+            p2Delay = 0;
+        }
+    }
+
+    public void keyReleased(KeyEvent e){}
+    public void keyTyped(KeyEvent e){}
+
+    public void actionPerformed(ActionEvent e)
+    {
+        if(isGameOver)
+        {
+            return;
+        }
+        if(p1AnimPlaying>=0)
+        {
+            int p1MoveAmt = 0;
+            if(p1AnimPlaying == FORWARD)
+            {
+                p1MoveAmt = 18;
+            }
+            else if(p1AnimPlaying == BACKWARD)
+            {
+                p1MoveAmt = -18;
+            }
+            int newP1X = p1X+p1MoveAmt;
+
+            if(Math.abs(newP1X - p2X)<140)
+            {
+                if(newP1X<p2X)
+                {
+                    p2X = p2X +p1MoveAmt;
+                    if(p2X>600) p2X = 600;
+                }
+                else{
+                    p2X = p2X = p1MoveAmt;
+                    if(p2X<0) p2X = 0;
+                }
+            }
+            if(newP1X >=0 && newP1X<=600)
+            {
+                p1X = newP1X;
+            }
+
+            int p1FrameCount = p1Frames[p1AnimPlaying].length;
+            if(p1Frame<p1FrameCount-1)
+            {
+                p1Frame++;
+                if(p1Frame == p1FrameCount-2)
+                {
+                    resolveP1Attack();
+                }
+            }
+            else if(p1Delay<DELAY_FRAMES)
+            {
+                p1Delay++;
+            }
+            else
+            {
+                p1Frame = 0;
+                p1AnimPlaying = -1;
+                p1Delay = 0;
+
+            }
+        }
+
+
+        if(p2AnimPlaying>=0)
+        {
+            int p2MoveAmt = 0;
+            if(p2AnimPlaying == FORWARD)
+            {
+                p2MoveAmt = -18;
+            }
+            else if(p2AnimPlaying==BACKWARD)
+            {
+                p2MoveAmt = 18;
+            }
+            int newP2X = p2X + p2MoveAmt;
+
+            if(Math.abs(p1X - newP2X)<140)
+            {
+                if(p1X < newP2X)
+                {
+                    p1X = p1X + p2MoveAmt;
+                    if(p1X>600) p1X = 0;
+                }
+                else{
+                    p1X = p1X + p2MoveAmt;
+                    if(p1X>600) p1X = 600;
+                }
+            }
+            if(newP2X>=0 && newP2X<=600)
+            {
+                p2X = newP2X;
+            }
+
+            int p2FrameCount = p2Frames[p2AnimPlaying].length;
+            if(p2Frame<p2FrameCount-1)
+            {
+                p2Frame++;
+                if(p2Frame == p2FrameCount-2)
+                {
+                    resolveP2Attack();
+                }
+            }
+            else if(p2Delay<DELAY_FRAMES)
+            {
+                p2Delay++;
+            }
+            else{
+                p2Frame = 0;
+                p2AnimPlaying = -1;
+                p2Delay = 0;
+            }
+        }
+        repaint();
+    }
+
+
+    protected void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+        requestFocusInWindow();
+
+        g.drawImage(background,0,-20,800,600,this);
+        g.drawImage(floorImg, 0, 400,this);
+
+        if(p1AnimPlaying>=0 && p1AnimPlaying <TOTAL_ANIMS)
+        {
+            g.drawImage(p1Frames[p1AnimPlaying][p1Frame],p1X,p1Y,200,200,this);
+
+        }
+        else
+        {
+            g.drawImage(p1DefaultImg,p1X,p1Y,200,200,this);
+        }
+
+        if(p2AnimPlaying>=0 && p2AnimPlaying<TOTAL_ANIMS)
+        {
+            g.drawImage(p2Frames[p2AnimPlaying][p2Frame],p2X,p2Y,200,200,this);
+        
+        }
+        else
+        {
+            g.drawImage(p2DefaultImg,p2X,p2Y,200,200,this);
+        }
+
+        if(showHitOnP2 == true)
+        {
+            g.setColor(new Color(255,0,0,120));
+            g.fillOval(hitFlashX - 25, hitFlashY -25,50,50);
+            showHitOnP2 = false;
+        }
+        if(showHitOnP1 == true)
+        {
+            g.setColor(new Color(255,0,0,120));
+            g.fillOval(hitFlashX-25,hitFlashY-25,50,50);
+            showHitOnP1 = false;
+        }
+
+        g.setFont(new Font("Arial",Font.BOLD,15));
+        g.setColor(Color.WHITE);
+        g.drawString("P1 Health",50,25);
+        g.setColor(p1Color);
+        g.fillRect(50,30,p1Health.getValue()*2,25);
+
+        g.setColor(Color.WHITE);
+        g.drawString("P2 Health",450,25);
+        g.setColor(p2Color);
+        g.fillRect(450,30,p2Health.getValue()*2,25);
+
+        if(gameStarted && !isGameOver)
+        {
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial",Font.BOLD,22));
+            g.drawString("Time: " + timeLeft, 350,50);
+        }
+        if(p1Combo!= null)
+        {
+            g.setColor(new Color(255,215,0));
+            g.setFont(new Font("Arial",Font.BOLD,30));
+            g.drawString(p1ComboName+"!",60,120);
+        }
+        if(p2ComboName != null)
+        {
+            g.setColor(new Color(255,165,0));
+            g.setFont(new Font("Arial",Font.BOLD,30));
+            g.drawString(p2ComboName+"!",440,120);
+        }
+
+        if(!gameStarted && !isGameOver)
+        {
+            g.setColor(new Color(245,245,200));
+            g.fillRect(0,0,800,410);
+            g.setColor(new Color(250,49,100));
+            g.setFont(new Font("Arial",Font.BOLD,44));
+            g.drawString("2-PLAYER MATCH",150,140);
+            g.setFont(new Font("Arial",Font.BOLD,20));
+            g.setColor(Color.DARK_GRAY);
+            g.drawString("P1: F D V R E + arrow keys to move",115,210);
+            g.drawString("P2: Numpad 7 4 8 9 6 + Numpad 1/3 to move", 115,250);
+            g.setFont(new Font("Arial",Font.BOLD,34));
+            g.setColor(new Color(250,49,100));
+            g.drawString("PRESS SPACE TO BEGIN", 140,330);
+        }
+
+        if(isGameOver)
+        {
+            g.setColor(new Color(245,245,220));
+            g.fillRect(0,0,800,410);
+            g.setColor(Color.GREEN);
+            g.setFont(new Font("Arial", Font.BOLD,52));
+            g.drawString(winnerText,100,200);
+            g.setFont(new Font("Arial",Font.BOLD,26));
+            g.setColor(Color.DARK_GRAY);
+            g.drawString("SPACE to play again | Back button for menu",100,260);
         }
     }
 

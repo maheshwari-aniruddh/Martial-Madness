@@ -20,7 +20,7 @@ E to roundhouse kick
 ## How to Run the Game
 
 ### Option 1: Windows .exe (recommended — no terminal needed)
-1. Download the executable directly: **[MartialMadness.exe](https://github.com/maheshwari-aniruddh/Martial-Madness/releases/download/v1.1.0/MartialMadness.exe)**
+1. Download the executable directly: **[MartialMadness.exe](https://github.com/maheshwari-aniruddh/Martial-Madness/releases/download/v1.2.0/MartialMadness.exe)**
 2. Once downloaded, double-click `MartialMadness.exe` to launch the game.
 3. **Requirement:** you need Java 8 or newer installed on your computer. The `.exe` is a native Windows launcher that runs the game through your installed Java runtime — it is not a fully standalone binary, so Java must be present on the machine.
    - To check if you already have Java, open Command Prompt and run `java -version`.

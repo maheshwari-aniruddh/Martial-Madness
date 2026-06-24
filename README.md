@@ -25,6 +25,7 @@ E to roundhouse kick
 3. **Requirement:** you need Java 8 or newer installed on your computer. The `.exe` is a native Windows launcher that runs the game through your installed Java runtime — it is not a fully standalone binary, so Java must be present on the machine.
    - To check if you already have Java, open Command Prompt and run `java -version`.
    - If you don't have Java, download it free from [java.com/download](https://www.java.com/download/) and install it. No restart is required — the `.exe` will detect Java automatically once it's installed.
+   - **Java 21 is strongly recommended** — animations and combat timing can look off on older Java runtimes (e.g. Java 8).
 4. **Windows SmartScreen / antivirus note:** since this `.exe` isn't code-signed, Windows may show a "Windows protected your PC" warning on first launch. Click **More info → Run anyway** to proceed. This is expected for unsigned indie executables and is not a sign of malware.
 
 ### Option 2: Cross-platform .jar (Windows, Mac, Linux)

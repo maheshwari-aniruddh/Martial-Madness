@@ -706,8 +706,7 @@ class Information
         }
         catch(FileNotFoundException e)
         {
-            System.out.println("Error loading quiz file: " + filePath);
-            System.exit(1);
+            scanner = new Scanner(""); // ponytail: file genuinely missing (e.g. first-ever run, no highscores.txt yet) isn't fatal
         }
         return scanner;
     }

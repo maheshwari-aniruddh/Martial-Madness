@@ -1,6 +1,5 @@
 import javax.swing.JPanel;
 import javax.swing.border.Border;
-import javax.smartcardio.Card;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import java.awt.BorderLayout;

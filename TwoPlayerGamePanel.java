@@ -376,7 +376,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
 
         if (p2X>p1X)
         {
-            p2x = p2x +push;
+            p2X = p2X + push;
             if(p2X>600)
             {
                 p2X = 600;
@@ -405,7 +405,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
         {
             p2ComboName = combo;
             p2ComboTimer.restart();
-            SoundMananger.combo();
+            SoundManager.combo();
             hurtP1(getComboDamage(combo),getComboPush(combo));
             return;
         }
@@ -422,7 +422,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
         else if(p2AnimPlaying == UPPERCUT)
         {
             hurtP1(UPPER_DMG,UPPER_PUSH);
-            SoundDamager.punch();
+            SoundManager.punch();
         }
         else if(p2AnimPlaying == ROUNDHOUSE)
         {
@@ -529,7 +529,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
                 isGameOver = true;
                 winnerText = "Player 1 Wins";
                 frameTimer.stop();
-                countdownTimer.stop();
+                countDownTimer.stop();
                 SoundManager.win();
             }
             if(p1Health.getValue()<=0)
@@ -627,7 +627,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
             p2Frame = 0;
             p2Delay = 0;
         }
-        else if (k = KeyEvent.VK_NUMPAD8)
+        else if (k == KeyEvent.VK_NUMPAD8)
         {
             p2Combo.addMove("Kick");
             p2AnimPlaying = KICK;

@@ -564,7 +564,32 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         int keyCode = evt.getKeyCode();
         if(keyCode == KeyEvent.VK_ESCAPE)
         {
-            isPaused = !isPaused
+            isPaused = !isPaused;
+            if(isPaused == true)
+            {
+                frameTimer.stop();
+                countDownTimer.stop();
+                enemyAttackTimer.stop();
+                enemyHealthTimer.stop();
+
+
+            }
+            else
+            {
+                if(countDownStarted == true)
+                {
+                    frameTimer.start();
+                    countDownTimer.start();
+                    enemyAttackTimer.start();
+                    enemyHealthTimer.start();
+                }
+            }
+            repaint();
+            return;
+        }
+        if(isPaused ==true)
+        {
+            return;
         }
         if(!haveWon)
         {
@@ -620,11 +645,12 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
     public void stopFight()
     {
-        myHealth.setValue(100);
+        myHealth.setValue(PLAYER_MAX_HEALTH);
         enemyHealth.setValue(100);
         timeRemaining = 60;
         imageX = 200;
         enemyImageX = 450;
+        blockStamina = MAX_BLOCK_STAMINA;
         if (firstTime == false)
         {
             info.makeIt();
@@ -635,7 +661,9 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         comboQueue.clear();
         enemyHealthTimer.stop();
         countDownStarted = false;
+        SoundManager.stopMusic();
     }
+
 
     public void keyReleased(KeyEvent evt)
     {
@@ -648,86 +676,106 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
     public void handleCombat()
     {
         int distance = Math.abs(imageX - enemyImageX);
-
-        if (distance<=MAX_ATTACK_RANGE)
+        if(distance>MAX_ATTACK_RANGE)
         {
-            String combo = comboQueue.checkCombo();
-            if(combo!=null)
+            return;
+        }
+
+        String combo = comboQueue.checkCombo();
+        if(combo!= null)
+        {
+            comboDisplayName = combo;
+            comboDisplayTimer.restart();
+            AchievementManager.check("combo: "+combo);
+            SoundManager.combo();
+            combosLanded++;
+
+            int baseDmg = 0;
+            int push = 0;
+            int pts = 0;
+
+            if(combo.equals("Shadow Kick"))
             {
-                if(combo.equals("Shadow Kick"))
-                {
-                    info.setPoints(5);
-                    attackIndicatorY = enemyImageY+150;
-                    showPlayerAttackIndicator = true;
-                    attackIndicatorX = enemyImageX +100;
-                    if(enemyImageX<imageX)
-                    {
-                        enemyImageX = Math.max(0,enemyImageX-250);
-                    }
-                    else
-                        enemyImageX = Math.min(600,enemyImageX+250);
-                    int currentH = enemyHealth.getValue();
-                    enemyHealth.setValue(Math.max(0,currentH-25));
-
-                    return;
-                }
-                else if(combo.equals("Hurricane Kick"))
-                {
-                    info.setPoints(8);
-                    attackIndicatorY = enemyImageY+100;
-                    showPlayerAttackIndicator = true;
-                    attackIndicatorX = enemyImageX+100;
-                    if(enemyImageX<imageX)
-                    {
-                        enemyImageX = Math.max(0,enemyImageX-300);
-                    }
-                    else
-                        enemyImageX = Math.min(600,enemyImageX+300);
-                    int currentH = enemyHealth.getValue();
-                    enemyHealth.setValue(Math.max(0, currentH - 35));
-
-                    return;
-                }
+                baseDmg = 25; push = 250; pts = 5;
             }
-            if(animationPlaying==PUNCH || animationPlaying ==KICK|| animationPlaying ==UPPERCUT || animationPlaying == ROUNDHOUSE)
+            else if(combo.equals("Hurricane Kick"))
             {
-                int pushDistance = 0;
-                if(animationPlaying == PUNCH)
-                {
-                    info.setPoints(1);
-                    pushDistance = PUNCH_REBOUND;
-                    attackIndicatorY = enemyImageY + 100;
-                }
-                else if(animationPlaying == KICK)
-                {
-                    info.setPoints(1);
-                    pushDistance = KICK_REBOUND;
-                    attackIndicatorY = enemyImageY+150;
-                }
-                else if(animationPlaying == UPPERCUT)
-                {
-                    info.setPoints(1);
-                    pushDistance = UPPERCUT_REBOUND;
-                    attackIndicatorY = enemyImageY+50;
-                }
-                else if(animationPlaying == ROUNDHOUSE)
-                {
-                    info.setPoints(1);
-                    pushDistance = ROUNDHOUSE_REBOUND;
-                    attackIndicatorY = enemyImageY+100;
-                }
-                showPlayerAttackIndicator = true;
-                attackIndicatorX = enemyImageX+100;
-
-                if(enemyImageX<imageX)
-                {
-                    enemyImageX = Math.max(0, enemyImageX-pushDistance);
-                }
-                else
-                {
-                    enemyImageX = Math.min(600,enemyImageX+pushDistance);
-                }
+                baseDmg =35;push = 300; pts = 8;
             }
+            else if(combo.equals("Dragon Sweep"))
+            {
+                baseDmg = 30; push = 250; pts = 6;
+            }
+            else if(combo.equals("Counter Burst"))
+            {
+                baseDmg = 40; push = 400; pts = 15;
+            }
+
+            int finalDmg = (int)(baseDmg*COMBO_MULT);
+            info.setPoints(pts);
+
+
+            showPlayerAttackIndicator = true;
+            attackIndicatorX = enemyImageX + 100;
+            attackIndicatorY = enemyImageY+100;
+
+            if(enemyImageX<imageX)
+            {
+                enemyImageX = enemyImageX -push;
+                if(enemyImageX<0) enemyImageX = 0;
+            }
+            else
+            {
+                enemyImageX = enemyImageX+push;
+                if(enemyImageX>600)enemyImageX = 600;
+            }
+            int currentH = enemyHealth.getValue();
+            enemyHealth.setValue(Math.max(0,currentH-finalDmg));
+
+            return;
+        }
+
+        if(animationPlaying == PUNCH|| animationPlaying == KICK||
+            animationPlaying == UPPERCUT || animationPlaying == ROUNDHOUSE)
+        {
+            int pushDist = 0;
+
+            if(animationPlaying == PUNCH)
+            {
+                info.setPoints(1);
+                pushDist = PUNCH_REBOUND;
+                attackIndicatorY = enemyImageY+100;
+            }
+            else if(animationPlaying == KICK)
+            {
+                info.setPoints(1);
+                pushDist = KICK_REBOUND;
+                attackIndicatorY = enemyImageY+150;
+            }
+            else if(animationPlaying == UPPERCUT)
+            {
+                info.setPoints(1);
+                pushDist = UPPERCUT_REBOUND;
+                attackIndicatorY = enemyImageY+50;
+            }
+            else if(animationPlaying == ROUNDHOUSE)
+            {
+                info.setPoints(1);
+                pushDist = ROUNDHOUSE_REBOUND;
+                attackIndicatorY = enemyImageY+100;
+            }
+            hitsLanded++;
+            showPlayerAttackIndicator = true;
+            attackIndicatorX = enemyImageX+100;
+            if(enemyImageX<imageX)
+            {
+                enemyImageX = Math.max(0, enemyImageX - pushDist);   
+            }
+            else
+            {
+                
+            }
+
         }
     }
 

@@ -12,7 +12,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.JProgressBar;
 import javax.swing.Timer;
 import java.awt.Image;
-
+import java.awt.Desktop.Action;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 
@@ -211,6 +211,12 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             FRAME_DELAY_MS = 105;
             COMBO_MULT = 1.0;
         }
+        else{
+            PLAYER_SPEED = 20;
+            PLAYER_MAX_HEALTH = 100;
+            FRAME_DELAY_MS = 105;
+            COMBO_MULT = 1.0;
+        }
 
 
 
@@ -235,7 +241,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         defaultPlayerFrames = loadCharacterAnimations("animations/default", defaultPlayerStance, false);
         ryuPlayerFrames = loadCharacterAnimations("animations/ryu", ryuPlayerStance, false);
         zangiefPlayerFrames = loadCharacterAnimations("animations/zangief", zangiefPlayerStance, false);
-
+        //start with default, initializeeLevel() will sawp to the right one
         defaultEnemyFrames = loadCharacterAnimations("enemy_animations/default", defaultEnemyStance, true);
         ryuEnemyFrames = loadCharacterAnimations("enemy_animations/ryu", ryuEnemyStance, true);
         zangiefEnemyFrames = loadCharacterAnimations("enemy_animations/zangief", zangiefEnemyStance, true);
@@ -285,13 +291,20 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
         addKeyListener(this);
         addFocusListener(this);
-        frameTimer = new Timer(105, this); 
+        frameTimer = new Timer(FRAME_DELAY_MS,this);
         TimerHandler th = new TimerHandler();
         countDownTimer = new Timer(1000, th);
         enemyAttackTimer = new Timer(ENEMY_ATTACK_INTERVAL, th);
         enemyHealthTimer = new Timer(1000,th);
         enemyHealthTimer.start();
-
+        comboDisplayTimer = new Timer(1500, new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                comboDisplayName = null;
+                repaint();
+            }
+        })
+        comboDisplayTimer.setRepeats(false);
         hasFocus = true;
         initializeLevel();
 
@@ -348,7 +361,12 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
     {
         public void actionPerformed(ActionEvent evt)
         {
-            Timer timerName = (Timer) evt.getSource();
+            if(isPaused == true)
+            {
+                return;
+            }
+
+                Timer timerName = (Timer) evt.getSource();
             if (timerName == countDownTimer)
             {
                 if(timeRemaining>0)
@@ -364,15 +382,20 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
             if(timerName == enemyAttackTimer)
             {
-                if (countDownStarted)
+                if (countDownStarted== true)
                 {
                     makeEnemyMoves();
                 }
             }
             if(timerName == enemyHealthTimer)
             {
-                int currentHealth = enemyHealth.getValue();
-                enemyHealth.setValue(Math.max(0,currentHealth-(int)ENEMY_HEALTH_DEPLETION_RATE));
+                int currentH = enemyHealth.getValue();
+                int newH = currentH - (int)ENEMY_HEALTH_DEPLETION_RATE;
+                if(newH<0)
+                {
+                    newH = 0
+                }
+                enemyHealth.setValue(newH);
             }
 
         }
@@ -419,7 +442,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         target[ROUNDHOUSE][7] = info.getMyImage(inputDir+"/roundhouse_animations/frame7.png");
         target[ROUNDHOUSE][8] = info.getMyImage(inputDir+"/roundhouse_animations/frame8.png");
         target[ROUNDHOUSE][9] = info.getMyImage(inputDir+"/roundhouse_animations/frame9.png");
-
+        // enemy have forward/backward because they face the other direction
         if (isEnemy==true)
         {
             target[FORWARD] = new Image[6];
@@ -468,6 +491,10 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
     {
         return animationFrames;
     }
+    public void setLevelNumber(int n)
+    {
+        levelNumber = n;
+    }
 
     public void setAnimation(int typeIn)
     {
@@ -487,15 +514,58 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
     public void makeEnemyMoves()
     {
-        int[] attackMoves = {PUNCH, KICK, UPPERCUT, ROUNDHOUSE};
-        int randomMove = attackMoves[(int)(Math.random() * attackMoves.length)];
-        setEnemyAnimation(randomMove);
+        if(enemyArchetype == ARCH_BALANCED)
+        {
+            int[] attacks = {PUNCH,KICK,UPPERCUT,ROUNDHOUSE};
+            int pick = (int)(Math.random()*attacks.length);
+            setEnemyAnimation(attacks[pick]);
+        }
+        else if(enemyArchetype == ARCH_AGGRESSIVE)
+        {
+            double r = Math.random();
+            if(r<0.4)
+            {
+                setEnemyAnimation(ROUNDHOUSE);
+            }
+            else if(r<0.7)
+            {
+                setEnemyAnimation(KICK);
+            }
+            else if(r<0.9)
+            {
+                setEnemyAnimation(PUNCH);
+            }
+            else
+            {
+                setEnemyAnimation(UPPERCUT);
+            }
+            
+        }
+        else
+        {
+            long timeSince = System.currentTimeMillis() - lastTimePlayerAttacked;
+
+            if(lastTimePlayerAttacked > 0 && timeSince<800)
+            {
+                if(Math.random()<0.5)
+                {
+                    setEnemyAnimation(ROUNDHOUSE);
+                }
+                else{
+                    setEnemyAnimation(UPPERCUT);
+                }
+            }
+        }
     }
 
     public void keyPressed(KeyEvent evt)
     {
         firstTime = false;
         int keyCode = evt.getKeyCode();
+        if(keyCode == KeyEvent.VK_ESCAPE)
+        {
+            isPaused = !isPaused
+        }
         if(!haveWon)
         {
             if(keyCode == KeyEvent.VK_F)

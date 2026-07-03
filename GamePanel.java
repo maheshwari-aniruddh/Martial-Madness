@@ -19,9 +19,32 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
 
 class GamePanel extends JPanel implements ActionListener, KeyListener, FocusListener, ChangeListener 
 {
+
+    private static final int ARCH_BALANCED = 0;
+    private static final int ARCH_AGGRESSIVE = 1;
+    private static final int ARCH_DEFENSIVE = 2;
+
+    private int enemyArchetype;
+    private long lastTimePlayerAttacked = 0;
+
+    private boolean isPaused = false;
+
+    private JProgressBar myHealth;
+    private JProgressBar enemyHeatlh;
+
+
+    private int imageX;
+    private int imageY;
+    private int enemyImageX;
+    private int enemyImageY;
+
+
+
     private Color myProgressColor;
     private Color enemyProgressColor;
     private boolean hasFocus;
@@ -96,6 +119,32 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
     private int ENEMY_ATTACK_INTERVAL;
     private double ENEMY_HEALTH_DEPLETION_RATE;
 
+    private int PLAYER_SPEED;
+    private int PLAYER_MAX_HEALTH;
+    private int FRAME_DELAY_MS;
+    private double COMBO_MULT;
+
+    private String comboDisplayName = null;
+    private Timer comboDisplayTimer;
+
+    private boolean tookDamageThisLevel = false;
+    private int blockStamina = 100;
+    private final int MAX_BLOCK_STAMINA = 100;
+    private long blockStartTime = 0;
+    private boolean parryFlash = false;
+
+    private long lastLeftTap = 0;
+    private long lastRgihtTap = 0;
+    private long dodgeUtil  = 0;
+
+    private int shakeFrames = 0;
+
+    private int hitsLanded = 0;
+    private int blocksLanded = 0;
+    private int combosLanded = 0;
+
+    private int levelNumber = 0 ;
+
     private final int PUNCH_DAMAGE = 20;
     private final int KICK_DAMAGE = 25;
     private final int UPPERCUT_DAMAGE= 30;
@@ -133,8 +182,46 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         ENEMY_HEALTH_DEPLETION_RATE = level[1];
         ENEMY_ATTACK_INTERVAL = (int)level[2];
 
+
+        if(ENEMY_FOLLOW_SPEED<=7)
+        {
+            enemyAnimationPlaying = ARCH_BALANCED;
+        }
+        else if(ENEMY_FOLLOW_SPEED<=13)
+        {
+            enemyAnimationPlaying = ARCH_AGGRESSIVE;
+        }
+        else{
+            enemyAnimationPlaying = ARCH_DEFENSIVE;
+        }
+
+        String charType = info.getCharacterType();
+
+        if(charType.equals("ninja"));
+        {
+            PLAYER_SPEED = 25;
+            PLAYER_MAX_HEALTH = 80;
+            FRAME_DELAY_MS = 85;
+            COMBO_MULT = 1.2;
+        }
+        else if(charType.equals("sumo"))
+        {
+            PLAYER_SPEED = 20;
+            PLAYER_MAX_HEALTH = 100;
+            FRAME_DELAY_MS = 105;
+            COMBO_MULT = 1.0;
+        }
+
+
+
+
         myProgressColor = Color.GREEN;
         enemyProgressColor = Color.GREEN;
+
+
+        myHealth = new JProgressBar(0,PLAYER_MAX_HEALTH);
+
+
         myHealth = new JProgressBar(0,100);
         enemyHealth = new JProgressBar(0,100);
         defaultPlayerStance = info.getMyImage("animations/default/default.png");
@@ -168,7 +255,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         healthPanel.setOpaque(false);
         healthPanel.setPreferredSize(new Dimension(800,70));
 
-        myHealth.setValue(100);
+        myHealth.setValue(PLAYER_MAX_HEALTH);
         myHealth.setBounds(150,30,200,30);
         myHealth.setForeground(Color.GREEN);
         myHealth.setBorderPainted(true);

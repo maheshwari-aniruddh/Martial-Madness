@@ -773,7 +773,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             }
             else
             {
-                
+                enemyImageX = Math.min(600,enemyImageX+pushDist);
             }
 
         }
@@ -804,6 +804,22 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         firstTime = true;
         gameOver = -1;
         countDownStarted = false;
+
+        isPaused = false;
+        comboDisplayName = null;
+        tookDamageThisLevel = null;
+        lastTimePlayerAttacked = 0;
+
+        blockStamina = MAX_BLOCK_STAMINA;
+        blockStartTime = 0;
+        dodgeUtil = 0;
+        parryFlash = false;
+        shakeFrames = 0;
+
+        hitsLanded = 0;
+        blocksLanded = 0;
+        combosLanded = 0;
+
         comboQueue.clear();
 
         imageX = 200;
@@ -820,7 +836,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         enemyAnimationPlaying = -1;
         enemyDelayCounter =0;
         
-        myHealth.setValue(100);
+        myHealth.setValue(PLAYER_MAX_HEALTH);
         enemyHealth.setValue(100);
 
         timeRemaining = 60;
@@ -837,55 +853,96 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
     public void handleEnemyAttack()
     {
         int distance = Math.abs(imageX - enemyImageX);
-        if (distance<=MAX_ATTACK_RANGE)
+
+        if(distance>MAX_ATTACK_RANGE)
         {
-            if(animationPlaying!=BLOCK)
+            return;
+        }
+        if(System.currentTimeMillis()<dodgeUtil)
+        {
+            return;
+        }
+        if(animationPlaying == BLOCK)
+        {
+            long sinceBlock = System.currentTimeMillis() - blockStartTime;
+
+            if(sinceBlock<=150)
             {
-                int damage = 0;
-            int pushDistance = 0;
-            if (enemyAnimationPlaying == PUNCH)
-            {
-                damage = PUNCH_DAMAGE;
-                pushDistance = PUNCH_REBOUND;
-                attackIndicatorY = imageY+100;
-            }
-            else if(enemyAnimationPlaying == KICK)
-            {
-                damage = KICK_DAMAGE;
-                pushDistance = KICK_REBOUND;
-                attackIndicatorY = imageY+150;
-            }
-            else if(enemyAnimationPlaying == UPPERCUT)
-            {
-                damage = UPPERCUT_DAMAGE;
-                pushDistance = UPPERCUT_REBOUND;
-                attackIndicatorY = imageY+50;
-            }
-            else if(enemyAnimationPlaying == ROUNDHOUSE)
-            {
-                damage = ROUNDHOUSE_DAMAGE;
-                pushDistance = ROUNDHOUSE_REBOUND;
-                attackIndicatorY = imageY+100;
+                parryFlash = true;
+                blocksLanded++;
+                info.setPoints(5);
+                SoundManager.combo();
+                enemyAnimationPlaying  = -1;
+                enemyCurrentFrame = 0;
+                return;
             }
 
-            showEnemyAttackIndicator = true;
-            attackIndicatorX = imageX + 100;
-            
-            if (imageX<enemyImageX)
+            if(blockStamina>0)
             {
-                 imageX = Math.max(0, imageX-pushDistance);
-            }
-            else
-            {
-                imageX = Math.min(600, imageX+pushDistance);
+                blockStamina = blockStamina -25;
+                if(blockStamina<0) blockStamina = 0;
+                blocksLanded++;
+                return;
             }
 
-            int currentHealth = myHealth.getValue();
-            myHealth.setValue(Math.max(0,currentHealth-damage));
+            //normal block - works as lonmg as you still ahve stamina
+            if(blockStamina>0)
+            {
+                blockStamina = blockStamina-25;
+                if(blockStamina<0) blockStamina = 0;
+                blocksLanded++;
+                return;
             }
-            
         }
 
+
+        int damage = 0;
+        int pushDist = 0;
+
+        if(enemyAnimationPlaying == PUNCH)
+        {
+            damage = PUNCH_DAMAGE;
+            pushDist = PUNCH_REBOUND;
+            attackIndicatorY = imageY+100;
+        }
+        else if(enemyAnimationPlaying == KICK)
+        {
+            damage = KICK_DAMAGE;
+            pushDist = KICK_REBOUND;
+            attackIndicatorY = imageY+150;
+        }
+        else if(enemyAnimationPlaying == UPPERCUT)
+        {
+            damage = UPPERCUT_DAMAGE;
+            pushDist = UPPERCUT_REBOUND;
+            attackIndicatorY = imageY+50;
+        }
+        else if(enemyAnimationPlaying == ROUNDHOUSE)
+        {
+            damage = ROUNDHOUSE_DAMAGE;
+            pushDist = ROUNDHOUSE_REBOUND;
+            attackIndicatorY = imageY+100;
+        }
+        if(damage>0)
+        {
+            tookDamageThisLevel = true;
+            shakeFrames = 6;
+        }
+
+        showEnemyAttackIndicator = true;
+        attackIndicatorX = imageX+100;
+
+        if(imageX<enemyImageX)
+        {
+            imageX = Math.max(0, imageX-pushDist);
+        }
+        else
+        {
+            imageX = Math.min(600, o,imageX+pushDist);
+        }
+
+        int currentH = myHealth.getValue();
+        myHealth.setValue(Math.max(0,currentH-damage));
     }
 
     public void paintComponent(Graphics g)
@@ -893,6 +950,19 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         super.paintComponent(g);
 
         requestFocusInWindow();
+
+        //screen shake and jitter everything for a few fgrames after a hit
+        int shakeX = 0;
+        int shakeY = 0;
+        if(shakeFrames>0)
+        {
+            shakeX = (int)(Math.random()*10)-5;
+            shakeY = (int)(Math.random()*10)-5; 
+            shakeFrames--;
+        }
+        g.translate(shakeX, shakeY);
+
+
         g.drawImage(backPic, 0,-20,800,600,this);
         g.drawImage(bottom, 0, 400, this);
 
@@ -926,18 +996,27 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             showEnemyAttackIndicator = false; 
         }
 
+        g.translate(-shakeX, -shakeY);
+
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial",Font.BOLD, 16));
         
         g.drawString("Player Health",150,25);
         g.setColor(myProgressColor);
         g.fillRect(150,30,myHealth.getValue()*2,30);
-
+        int barWidth = (myHealth.getValue()*200);
+        g.fillRect(150,30,barWidth,30);
         g.setColor(Color.WHITE);
         g.drawString("Enemy Health",450,25);
         g.setColor(enemyProgressColor);
         g.fillRect(450,30,enemyHealth.getValue()*2,30);
-
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial",Font.BOLD,12));
+        g.drawString("BLOCK",108,75);
+        g.setColor(Color.DARK_GRAY);
+        g.fillRect(150,66,100,10);
+        g.setColor(new Color(80,160,255));
+        g.fillRect(150,66,blockStamina,10);
         if(countDownStarted)
         {
             g.setColor(Color.WHITE);

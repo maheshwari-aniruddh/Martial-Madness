@@ -71,32 +71,47 @@ public class ComboQueue
     public String checkCombo()
     {
         cleanUp();
-
-        if (list.size() < 3)
+        if(list.size()<3)
         {
             return null;
         }
 
-        String combo = "";
+        String seq = "";
         ListNode<Move> current = list.getHead();
-        while (current != null)
+        while(current!= null)
         {
-            combo += current.getValue().getName() + ",";
+            seq = seq+current.getValue().getName()+",";
             current = current.getNext();
         }
 
-        if (combo.contains("Punch,Punch,Kick"))
+        if(list.size()>=4 && seq.contains("Uppercut,Kick,Punch,Kick"))
         {
             clear();
-            return "Shadow Kick";
+            return "Death Blossom";
         }
-        else if (combo.contains("Punch,Uppercut,Roundhouse"))
+        if(seq.contains("Block,Punch,Roundhouse"))
+        {
+            clear();
+            return "Counter Burst";
+        }
+        if(seq.contains("Punch,Uppercut,Roundhouse"))
         {
             clear();
             return "Hurricane Kick";
         }
+        if(seq.contains("Kick,Kick,Uppercut"))
+        {
+            clear();
+            return "Dragon Sweep";
+        }
+        if(seq.contains("Punch,Punch,Kick"))
+        {
+            clear();
+            return "Shadow Kick";
+        }
         return null;
-    }
+
+    }   
 
     public void clear()
     {

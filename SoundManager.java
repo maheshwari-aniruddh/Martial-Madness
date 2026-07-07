@@ -68,6 +68,37 @@ public class SoundManager
 
     public static void music()
     {
-        File f = new File();
+        File f = new File("sounds/music.wav");
+
+        if(!f.exists())
+        {
+            return;
+        }
+
+        try
+        {
+            if(musicClip!= null)
+            {
+                musicClip.stop();
+                musicClip.close();
+            }
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(f);
+            musicClip = AudioSystem.getClip();
+            musicClip.open(audioIn);
+            musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+        }
+        catch(Exception e)
+        {
+            System.out.println("music error");
+        }
     }
+
+    public static void stopMusic()
+    {
+        if(musicClip!= null)
+        {
+            musicClip.stop();
+        }
+    }
+    
 }

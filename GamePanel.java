@@ -1132,10 +1132,20 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
     public void actionPerformed(ActionEvent evt)
     {
+        if(isPaused)
+        {
+            return;
+        }
+        
         Timer timerName = (Timer) evt.getSource();
         
         if(timerName == frameTimer)
         {
+
+            if(animationPlaying!=BLOCK && blockStamina < MAX_BLOCK_STAMINA)
+            {
+                blockStamina++;
+            }
             if(animationPlaying>= 0)
             {
                 int positionAdjustment = 0;
@@ -1166,7 +1176,8 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
                 {
                     imageX = newX;
                 }
-                if(currentFrame < animationFrames[animationPlaying].length-1)
+                int frameLen = animationFrames[animationPlaying].length;
+                if(currentFrame<frameLen-1)
                 {
                     currentFrame++;
                     if(currentFrame == animationFrames[animationPlaying].length-2)

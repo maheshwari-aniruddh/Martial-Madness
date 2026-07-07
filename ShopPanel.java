@@ -3,6 +3,8 @@
 // saves to shop.txt
 
 import javax.swing.*;
+import javax.swing.border.Border;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -94,8 +96,220 @@ public class ShopPanel extends JPanel
                 {
                     SoundManager.combo();
                 }
-                refreshLabel();
+                refreshLabels();
             }
         }
+
+        for(int i = 0; i<NUM_UPGRADES;i++)
+        {
+            JPanel row = new JPanel();
+            row.setLayout(new FlowLayout(FlowLayout.LEFT,15,5));
+            row.setBackground(new Color(0,0,0,140));
+
+            JLabel nameLabel = new JLabel(NAMES[i]);
+            nameLabel.setFont(new Font("Arial",Font.BOLD,20));
+            nameLabel.setForeground(Color.WHITE);
+            nameLabel.setPreferredSize(new Dimension(170,30));
+            row.add(nameLabel);
+
+            JLabel descLabel = new JLabel(DESCRIPTIONS[i]);
+            descLabel.setFont(new Font("Arial",Font.PLAIN,15));
+            descLabel.setForeground(Color.LIGHT_GRAY);
+            descLabel.setPreferredSize(new Dimension(280,30));
+            row.add(descLabel);
+
+            levLabels[i] = new JLabel();
+            levLabels[i].setFont(new Font("Arial",Font.BOLD,16));
+            levLabels[i].setForeground(new Color(120,220,120));
+            levLabels[i].setPreferredSize(new Dimension(90,30));
+            row.add(levLabels[i]);
+
+            buyButtons[i] = new JButton();
+            buyButtons[i].setPreferredSize(new Dimension(110,35));
+            buyButtons[i].addActionListener(new BuyHandler(i));
+            row.add(buyButtons[i]);
+
+            shopRows.add(row);
+
+
+        }
+        JPanel centerWrap = new JPanel();
+        centerWrap.setOpaque(false);
+        centerWrap.setLayout(new FlowLayout(FlowLayout.CENTER,0,25));
+        centerWrap.add(shopRows);
+        add(centerWrap,BorderLayout.CENTER);
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setOpaque(false);
+
+        JButton backButton = new JButton("Back to Levels");
+        backButton.setPreferredSize(new Dimension(160,48));
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt)
+            {
+                levelCards.show(lph,"Levels");
+            }
+        });
+
+        bottomPanel.add(backButton);
+        add(bottomPanel,BorderLayout.SOUTH);
+
+        refreshLabels();
+    
+    
     }
+
+    public void refreshLabels()
+    {
+        coinLabel.setText("        Coins: "+coins);
+
+        for(int i = 0;i<NUM_UPGRADES;i++)
+        {
+            levLabels[i].setText("Lv "+levels[i]+"/"+MAX_LEVELS[i]);
+            if(levels[i]>= MAX_LEVELS[i])
+            {
+                buyButtons[i].setText("MAXED");
+                buyButtons[i].setEnabled(false);
+            }
+            else
+            {
+                int cost = costFor(i);
+                buyButtons[i].setText("Buy: "+cost);
+                buyButtons[i].setEnabled(coins>=cost);
+            }
+
+            
+        }
+        repaint();
+    }
+
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+        g.drawImage(backPic,0,0,800,600,this);
+        g.setColor(new Color(0,0,0,120));
+        g.fillRect(0,0,800,600);
+    }  
+    
+    private static int costFor(int id)
+    {
+        return BASE_COSTS[id]*(levels[id]+1);
+    }
+
+    private static void load()
+    {
+        if(loaded==true)
+        {
+            return;
+        }
+        loaded = true;
+
+        try
+        {
+            File f = new File("shop.txt");
+            if(f.exists() == false)
+            {
+                return;
+            }
+            Scanner sc = new Scanner(f);
+            coins = sc.nextInt();
+            for(int i = 0; i<NUM_UPGRADES; i++)
+            {
+                levels[i] = sc.nextInt();
+            }
+            sc.close();
+        }
+        catch(Exception e)
+        {
+            coins = 0;
+            for(int i = 0; i<NUM_UPGRADES; i++)
+            {
+                levels[i] = 0;
+            }
+            
+        }
+
+        for(int i = 0; i<NUM_UPGRADES;i++)
+        {
+            if(levels[i]>MAX_LEVELS[i])
+            {
+                levels[i] = MAX_LEVELS[i];
+            }
+            if(levels[i]<0)
+            {
+                levels[i] = 0;
+            }
+        }
+        if(coins<0)
+        {
+            coins = 0;
+        }
+
+    }
+
+    private static void save()
+    {
+        try
+        {
+            PrintWriter pw = new PrintWriter("shop.txt");
+            pw.println(coins);
+            for(int i = 0; i< NUM_UPGRADES; i++)
+            {
+                pw.println(levels[i]);
+            }
+            pw.close();
+
+
+        }
+        catch(Exception e)
+        {
+            // count save but not fatal
+        }
+    }
+
+    public static void addCoins(int amount)
+    {
+        load();
+        coins = coins+amount;
+        save();
+    }
+
+    public static int getCoins()
+    {
+        load();
+        return coins;
+    }
+
+    public static boolean buy(int id)
+    {
+        load();
+
+        if(id<0 || id>=NUM_UPGRADES)
+        {
+            return false;
+        }
+        if(levels[id]>= MAX_LEVELS[id])
+        {
+            return false;
+        }
+
+        int cost = costFor(id);
+        if(coins < cost)
+        {
+            return false;
+        }
+
+        coins = coins - cost;
+        levels[id]++;
+        save();
+        return true;
+    }
+
+    public static int healthBonus()
+    {
+        load();
+        return levels
+    }
+
+
 }

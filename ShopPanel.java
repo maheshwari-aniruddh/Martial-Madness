@@ -308,8 +308,25 @@ public class ShopPanel extends JPanel
     public static int healthBonus()
     {
         load();
-        return levels
+        return levels[IRON_BODY]*20;
     }
 
+    public static double comboBonus()
+    {
+        load();
+        return levels[COMBO_MASTER]*0.15;
+    }
+
+
+    public static int guardBonus()
+    {
+        load();
+        return levels[TOUGH_GUARD];
+    }
+    public static int speedBonus()
+    {
+        load();
+        return levels[SHADOW_STEP]*150;
+    }
 
 }

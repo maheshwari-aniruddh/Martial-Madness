@@ -1,3 +1,16 @@
+// TwoPlayerGamePanel.java
+// local 2 player mode - both players share the same keyboard
+// Player 1 (left side):
+// F = punch , D = block , V = kick , R = uppercut , E = roundhouse kick
+// left/right arrows to move
+
+//Player 2 (right side, uses ememy animations so they face left):
+// first player to reach 0 hp loses, or whoever has more hp when the time runs out wins
+
+
+
+
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -45,7 +58,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
     private Timer p1ComboTimer;
     private Timer p2ComboTimer;
 
-    private int timeLeft = 90;
+    private int timeLeft = 99;
     private boolean gameStarted = false;
     private boolean isGameOver = false;
     private String winnerText = "";

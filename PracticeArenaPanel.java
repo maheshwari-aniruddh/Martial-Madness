@@ -66,7 +66,7 @@ public class PracticeArenaPanel extends JPanel implements ActionListener, KeyLis
     {
         JPanel controlPanel= new JPanel();
         controlPanel.setLayout(null);
-        controlPanel.setBounds(540,20,240,340);
+        controlPanel.setBounds(540,20,240,360);
         controlPanel.setBackground(new Color(25,30,45,200));
         controlPanel.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(new Color(255,255,255,6)),

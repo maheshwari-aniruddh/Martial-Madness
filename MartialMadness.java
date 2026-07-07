@@ -288,7 +288,7 @@ class InstructionPanel extends JPanel
 
         Color eastColor = new Color(154, 224, 104);
         eastKeyPanel.setBackground(eastColor);
-        eastKeyPanel.setLayout(new GridLayout(5, 1, 50, 20));
+        eastKeyPanel.setLayout(new GridLayout(8, 1, 50, 10));
         eastKeyPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
         JLabel rightLabel = new JLabel("Right Arrow to move right ");
         JLabel leftLabel = new JLabel("Left Arrow to move left");
@@ -300,6 +300,9 @@ class InstructionPanel extends JPanel
         eastKeyPanel.add(punchLabel);
         eastKeyPanel.add(kickLabel);
         eastKeyPanel.add(blockLabel);
+        eastKeyPanel.add(new JLabel("R key to uppercut"));
+        eastKeyPanel.add(new JLabel("E key to roundhouse"));
+        eastKeyPanel.add(new JLabel("ESC to pause"));
         add(eastKeyPanel, BorderLayout.WEST);
 
         // this class changes the boolean to true or false depending on if the check box has been clicked
@@ -307,7 +310,7 @@ class InstructionPanel extends JPanel
         JPanel centerPanel = new JPanel();
         centerPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
         JTextArea howToPlayTxt = new JTextArea(
-            "This is a java game to teach self defense, you will learn defense moves to save yourself in combat. There will be a tutorial so you can learn how to play and then you will play in the level. You can block, kick, punch and move left and right. As you progress you will learn stronger and better moves. In the gameplay, you both have health bars and the enemy health bar will deplete at a set rate and you have to defend yourself until the time runs out. The enemy's attacks are random and their speed and complexity will also increase as you progress. Once you defeat the enemy, you can move on to the next level", 15, 0
+            "This is a java game to teach self defense, you will learn defense moves to save yourself in combat. There will be a tutorial so you can learn how to play and then you will play in the level. You can block, kick, punch and move left and right. As you progress you will learn stronger and better moves. In the gameplay, you both have health bars and the enemy health bar will deplete at a set rate and you have to defend yourself until the time runs out. The enemy's attacks are random and their speed and complexity will also increase as you progress. Once you defeat the enemy, you can move on to the next level, THe enemy's attack are random and their speed and complexitry will also increase as you progress.\n\n COMBOS: SHadow Kick(F F V) | Hurrican Kick(F R E) | Dragon Sweep(V V R)| Counter Burst(D F E)| Death Blossom(R V F V)\n\n + NEW: Press ESC anytime to pause. Try 2player mode and the practice areana form the level selct screen! + HIts, combos, wins and losses now play sound effects. Unlock Achievments as you play: Firsy BLood, Combo Master, Untouchable, Death Blossom, and Grand Master", 15, 0
         );
 
         howToPlayTxt.setLineWrap(true);
@@ -405,6 +408,7 @@ class LevelPanelHolder extends JPanel
     private LevelPanel lp;
     private GamePanel tutorialGP;
     private PracticeArenaPanel practiceArenaPanel;
+    private TwoPlayerGamePanel twoPlayerPanel;
     private GamePanel[] levelsGPs = new GamePanel[6];
 
     public LevelPanelHolder(MartialMadnessHolder mmhIn, CardLayout cardsIn, Information infoIn)
@@ -432,12 +436,19 @@ class LevelPanelHolder extends JPanel
         ExtraCredit ec = new ExtraCredit(mmh,cards,this,info);
         add(ec,"ExtraCredit");
 
+        practiceArenaPanel = new PracticeArenaPanel(this,levelCards,info);
+        add(practiceArenaPanel,"PracticeArena");
+
+        twoPlayerPanel = new TwoPlayerGamePanel(mmh,cards,this,info);
+        add(twoPlayerPanel,"TwoPlayer");
+
         //for loop to initialize the game panels with their respective images and adding them
         String[] backGroundPicNames = {"canyon.jpeg","desert.jpg","forest.jpg","mystical.jpg","rural_pasture.jpg","tents.jpg"};
         for(int i=0;i<6;i++)
         {
-            levelsGPs[i] = new GamePanel(mmh,cards,this,info,backGroundPicNames[i],levels[i]);
-            add(levelsGPs[i],"GamePanel" + (i));
+            levelsGPs[i] = new GamePanel(mmh, cards, this, info, backGroundPicNames[i],levels[i]);
+            levelsGPs[i].setLevel(i);
+            add(levelsGPs[i],"GamePanel"+i);
     
         }
 
@@ -455,6 +466,19 @@ class LevelPanelHolder extends JPanel
         levelsGPs[levelNum].initializeLevel();
         CardLayout cl = (CardLayout) getLayout();
         cl.show(this, "GamePanel" + levelNum);
+    }
+    
+    public void startPracticeArena()
+    {
+        practiceArenaPanel.startArena();
+        CardLayout cl = (CardLayout) getLayout();
+        cl.show(this, "PracticeArena");
+    }
+    public void startTwoPlayer()
+    {
+        twoPlayerPanel.initalizeMatch();
+        CardLayout cl = (CardLayout) getLayout();
+        cl.show(this, "TwoPlayer");
     }
 }
 
@@ -513,6 +537,14 @@ class LevelPanel extends JPanel
                 {
                     levelCards.show(lph,"ExtraCredit");
                 }
+                else if(command.equals("Practice Arena"))
+                {
+                    lph.startPracticeArena();
+                }
+                else if(command.equals("2 Player"))
+                {
+                    lph.startTwoPlayer();
+                }
             }
 
 
@@ -527,49 +559,56 @@ class LevelPanel extends JPanel
         JPanel centerPanel = new JPanel();
         Color centerColor = new Color(143,145,218);
         centerPanel.setBackground(centerColor);
-        centerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 100,30));
+        centerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 60,20));
 
         ButtonHandler bh = new ButtonHandler();
         levelButtons = new JButton[7];
 
         JButton level0 = new JButton("Tutorial");
-        level0.setPreferredSize(new Dimension(150,100));
+        level0.setPreferredSize(new Dimension(130,80));
         level0.addActionListener(bh);
         levelButtons[0] = level0;
 
         JButton level1 = new JButton("Level 1");
-        level1.setPreferredSize(new Dimension(150,100));
+        level1.setPreferredSize(new Dimension(130,80));
         level1.addActionListener(bh);
         levelButtons[1] = level1;
 
         JButton level2 = new JButton("Level 2");
-        level2.setPreferredSize(new Dimension(150,100));
+        level2.setPreferredSize(new Dimension(130,80));
         level2.addActionListener(bh);
         levelButtons[2] = level2;
 
         JButton level3 = new JButton("Level 3");
-        level3.setPreferredSize(new Dimension(150,100));
+        level3.setPreferredSize(new Dimension(130,80));
         level3.addActionListener(bh);
         levelButtons[3] = level3;
 
         JButton level4 = new JButton("Level 4");
-        level4.setPreferredSize(new Dimension(150,100));
+        level4.setPreferredSize(new Dimension(130,80));
         level4.addActionListener(bh);
         levelButtons[4] = level4;
 
         JButton level5 = new JButton("Level 5");
-        level5.setPreferredSize(new Dimension(150,100));
+        level5.setPreferredSize(new Dimension(130,80));
         level5.addActionListener(bh);
         levelButtons[5] = level5;
 
         JButton level6 = new JButton("Level 6");
-        level6.setPreferredSize(new Dimension(150,100));
+        level6.setPreferredSize(new Dimension(130,80));
         level6.addActionListener(bh);
         levelButtons[6] = level6;
 
         JButton level7 = new JButton("Extra Points");
-        level7.setPreferredSize(new Dimension(150,100));
+        level7.setPreferredSize(new Dimension(130,80));
         level7.addActionListener(bh);
+
+        JButton btnPractice = new JButton("Practice Arena");
+        btnPractice.setPreferredSize( new Dimension(130,80));
+        btnPractice.setBackground(new Color(70,130,180));
+        btnPractice.setForeground(Color.WHITE);
+        btn2P.addActionListener(bh);
+        centerPanel.add(btn2P);
 
         centerPanel.add(level0);
         centerPanel.add(level1);

@@ -1023,7 +1023,22 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             g.setFont(new Font("Arial",Font.BOLD, 24));
             g.drawString("Time: "+ timeRemaining,350,50);
         }
+        if (comboDisplayName != null)
+        {
+            g.setColor(new Color(255,215,0));
+            g.setFont(new Font("Arial",Font.BOLD,38));
+            g.drawString(comboDisplayName+"!",220,200);
+        }
+        if(parryFlash == true)
+        {
+            g.setColor(new Color(255,255,255,130));
+            g.fillRect(0,0,800,410);
+            g.setColor(new Color(255,215,0));
+            g.setFont(new Font("Arial",Font.BOLD, 40));
+            g.drawString("Perfect Block!", 210,200);
+            parryFlash = false;
 
+        }
         if(enemyHealth.getValue()<=0)
         {
             gameOver = 0;
@@ -1034,6 +1049,13 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             g.drawString("YOU WIN! ", 250, 200);
             g.setFont(new Font("Arial", Font.BOLD, 36));
             g.drawString("(press back to go to the next level) ", 70, 240);
+            
+            g.setColor(Color.DARK_GRAY);
+            g.setFont(new Font("Arial",Font.PLAIN,22));
+            g.drawString("Hits: "+hitsLanded+"        Blocks: "+blocksLanded+"      Combos: "+ combosLanded,70,300);
+
+            
+            
             countDownStarted = false;
             setLevel();
         }
@@ -1048,6 +1070,11 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             g.drawString( "YOU LOSE!", 250,200);
             g.setFont(new Font("Arial", Font.BOLD, 36));
             g.drawString("(press space to retry level)",70 ,240 );
+            
+            g.setColor(Color.DARK_GRAY);
+            g.setFont(new Font(new Font("Arial",Font.PLAIN,22)));
+            g.drawString("Hits: "+hitsLanded+"      BLocks: "+ blocksLanded+ "         Combos: "+combosLanded,70,300);
+            SoundManager.lose();
             setLevel();
         }
 
@@ -1065,6 +1092,20 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             g.setFont(new Font("Arial", Font.BOLD,48));
             g.drawString("TIME'S UP!", 250,200);
         }
+        if (isPaused)
+        {
+            Graphics2D g2 = (Graphics2D)g;
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.6f));
+            g2.setColor(Color.BLACK);
+            g2.fillRect(0,0,800,600);
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Arial"),Font.BOLD,56);
+            g2.drawString("PAUSED",270,230);
+            g2.setFont(new Font("Arial",Font.BOLD,28));
+            g2.drawString("Press ESC to resume",215,285);
+
+        }
     }
 
     public void setLevel()
@@ -1072,10 +1113,17 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         if(gameOver == 0 && pointGiven)
         {
             haveWon = true;
+            AchievementManager.check(\"level_complete:"+levelNumber);
+            if(tookDamageThisLevel == false)
+            {
+                AchievementManager.check("untoucged win");
+            }
+            SoundManager.win(); 
             stopFight();
         }
         if(gameOver == 1)
         {
+
             stopFight();
         }
         gameOver = -1;

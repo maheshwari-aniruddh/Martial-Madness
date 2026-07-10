@@ -60,7 +60,7 @@ public class ShopPanel extends JPanel
 
         load();
 
-        backPic = info.getMyImage("dojo.png");
+        backPic = info.getMyImage("tents.jpg");
 
         setLayout(new BorderLayout());
 

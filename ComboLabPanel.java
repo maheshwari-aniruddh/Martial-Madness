@@ -40,6 +40,25 @@ public class ComboLabPanel extends JPanel implements KeyListener
     private Information info;
     private Image backPic;
 
+    private final int PUNCH = 0;
+    private final int BLOCK = 1;
+    private final int KICK = 2;
+    private final int UPPERCUT = 3;
+    private final int ROUNDHOUSE = 4;
+    private final int TOTAL_ANIMATIONS = 5;
+    private final int DELAY_FRAMES = 3;
+    private Image[][] defaultPlayerFrames;
+    private Image defaultPlayerStance;
+    private Image[][] ryuPlayerFrames;
+    private Image ryuPlayerStance;
+    private Image[][] zangiefPlayerFrames;
+    private Image zangiefPlayerStance;
+    private Image[][] animationFrames;
+    private Image defaultImage;
+    private int animationPlaying = -1;
+    private int currentFrame = 0;
+    private int delayCounter = 0;
+
     private int currentCombo = -1;
     private ComboQueue queue;
     private long drillStart = 0;
@@ -57,6 +76,15 @@ public class ComboLabPanel extends JPanel implements KeyListener
         queue = new ComboQueue();
         backPic = info.getMyImage("dojo.png");
 
+        defaultPlayerStance = info.getMyImage("animations/default/default.png");
+        ryuPlayerStance = info.getMyImage("animations/ryu/default.png");
+        zangiefPlayerStance = info.getMyImage("animations/zangief/default.png");
+        defaultPlayerFrames = loadCharacterAnimations("animations/default", defaultPlayerStance);
+        ryuPlayerFrames = loadCharacterAnimations("animations/ryu", ryuPlayerStance);
+        zangiefPlayerFrames = loadCharacterAnimations("animations/zangief", zangiefPlayerStance);
+        animationFrames = defaultPlayerFrames;
+        defaultImage = defaultPlayerStance;
+
         setLayout(new BorderLayout());
         JPanel top = new JPanel();
         top.setOpaque(false);
@@ -67,7 +95,7 @@ public class ComboLabPanel extends JPanel implements KeyListener
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER,20,20));
+        buttonPanel.setLayout(new GridLayout(2,3,15,10));
 
         class ComboButtonHandler implements ActionListener
         {
@@ -110,22 +138,9 @@ public class ComboLabPanel extends JPanel implements KeyListener
         drillTimer = new Timer(100,new ActionListener() {
             public void actionPerformed(ActionEvent evt)
             {
-                currentCombo = -1;
-                levelCards.show(lph,"Levels");
-
-            }
-        });
-        buttonPanel.add(backButton);
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        addKeyListener(this);
-        setFocusable(true);
-
-        drillTimer = new Timer(100,new ActionListener() {
-            public void actionPerformed(ActionEvent evt)
-            {
                 if(currentCombo>=0)
                 {
+                    advanceAnimation();
                     if(System.currentTimeMillis() - drillStart>4000)
                     {
                         finishDrill(-1);
@@ -138,8 +153,27 @@ public class ComboLabPanel extends JPanel implements KeyListener
 
     public void openLab()
     {
+        String type = info.getCharacterType();
+        if(type.equals("ninja"))
+        {
+            animationFrames = ryuPlayerFrames;
+            defaultImage = ryuPlayerStance;
+        }
+        else if(type.equals("sumo"))
+        {
+            animationFrames = zangiefPlayerFrames;
+            defaultImage = zangiefPlayerStance;
+        }
+        else
+        {
+            animationFrames = defaultPlayerFrames;
+            defaultImage = defaultPlayerStance;
+        }
+
         currentCombo = -1;
         resultText = null;
+        animationPlaying = -1;
+        currentFrame = 0;
         requestFocusInWindow();
         repaint();
     }
@@ -150,9 +184,89 @@ public class ComboLabPanel extends JPanel implements KeyListener
         queue.clear();
         drillStart = System.currentTimeMillis();
         resultText = null;
+        animationPlaying = -1;
+        currentFrame = 0;
         drillTimer.start();
         requestFocusInWindow();
         repaint();
+    }
+
+    private int animForMove(String move)
+    {
+        if(move.equals("Punch")) return PUNCH;
+        if(move.equals("Block")) return BLOCK;
+        if(move.equals("Kick")) return KICK;
+        if(move.equals("Uppercut")) return UPPERCUT;
+        if(move.equals("Roundhouse")) return ROUNDHOUSE;
+        return -1;
+    }
+
+    private void advanceAnimation()
+    {
+        if(animationPlaying < 0)
+        {
+            return;
+        }
+
+        int frameLen = animationFrames[animationPlaying].length;
+        if(currentFrame < frameLen - 1)
+        {
+            currentFrame++;
+        }
+        else if(delayCounter < DELAY_FRAMES)
+        {
+            delayCounter++;
+        }
+        else
+        {
+            currentFrame = 0;
+            animationPlaying = -1;
+            delayCounter = 0;
+        }
+    }
+
+    private Image[][] loadCharacterAnimations(String inputDir, Image defaultFrame)
+    {
+        Image[][] target = new Image[TOTAL_ANIMATIONS][];
+
+        target[PUNCH] = new Image[4];
+        target[PUNCH][0] = defaultFrame;
+        target[PUNCH][1] = info.getMyImage(inputDir + "/punch_animation copy/frame1.png");
+        target[PUNCH][2] = info.getMyImage(inputDir + "/punch_animation copy/frame2.png");
+        target[PUNCH][3] = info.getMyImage(inputDir + "/punch_animation copy/frame3.png");
+
+        target[BLOCK] = new Image[4];
+        target[BLOCK][0] = defaultFrame;
+        target[BLOCK][1] = info.getMyImage(inputDir + "/block_animation/frame1.png");
+        target[BLOCK][2] = info.getMyImage(inputDir + "/block_animation/frame2.png");
+        target[BLOCK][3] = info.getMyImage(inputDir + "/block_animation/frame3.png");
+
+        target[KICK] = new Image[4];
+        target[KICK][0] = defaultFrame;
+        target[KICK][1] = info.getMyImage(inputDir + "/kick_animation/frame1.png");
+        target[KICK][2] = info.getMyImage(inputDir + "/kick_animation/frame2.png");
+        target[KICK][3] = info.getMyImage(inputDir + "/kick_animation/frame3.png");
+
+        target[UPPERCUT] = new Image[5];
+        target[UPPERCUT][0] = defaultFrame;
+        target[UPPERCUT][1] = info.getMyImage(inputDir + "/uppercut_animation/frame1.png");
+        target[UPPERCUT][2] = info.getMyImage(inputDir + "/uppercut_animation/frame2.png");
+        target[UPPERCUT][3] = info.getMyImage(inputDir + "/uppercut_animation/frame3.png");
+        target[UPPERCUT][4] = info.getMyImage(inputDir + "/uppercut_animation/frame4.png");
+
+        target[ROUNDHOUSE] = new Image[10];
+        target[ROUNDHOUSE][0] = defaultFrame;
+        target[ROUNDHOUSE][1] = info.getMyImage(inputDir + "/roundhouse_animations/frame1.png");
+        target[ROUNDHOUSE][2] = info.getMyImage(inputDir + "/roundhouse_animations/frame2.png");
+        target[ROUNDHOUSE][3] = info.getMyImage(inputDir + "/roundhouse_animations/frame3.png");
+        target[ROUNDHOUSE][4] = info.getMyImage(inputDir + "/roundhouse_animations/frame4.png");
+        target[ROUNDHOUSE][5] = info.getMyImage(inputDir + "/roundhouse_animations/frame5.png");
+        target[ROUNDHOUSE][6] = info.getMyImage(inputDir + "/roundhouse_animations/frame6.png");
+        target[ROUNDHOUSE][7] = info.getMyImage(inputDir + "/roundhouse_animations/frame7.png");
+        target[ROUNDHOUSE][8] = info.getMyImage(inputDir + "/roundhouse_animations/frame8.png");
+        target[ROUNDHOUSE][9] = info.getMyImage(inputDir + "/roundhouse_animations/frame9.png");
+
+        return target;
     }
 
     private void finishDrill(int grade)
@@ -229,6 +343,10 @@ public class ComboLabPanel extends JPanel implements KeyListener
             return;
         }
 
+        animationPlaying = animForMove(move);
+        currentFrame = 0;
+        delayCounter = 0;
+
         queue.addMove(move);
 
         String detected = queue.checkCombo();
@@ -267,6 +385,15 @@ public class ComboLabPanel extends JPanel implements KeyListener
             g.setColor(Color.WHITE);
             g.setFont(new Font("Arial",Font.BOLD, 30));
             g.drawString("COMBO LAB", 300, 60);
+
+            if(animationPlaying >= 0 && animationPlaying < TOTAL_ANIMATIONS)
+            {
+                g.drawImage(animationFrames[animationPlaying][currentFrame], 300, 360, 200, 200, this);
+            }
+            else
+            {
+                g.drawImage(defaultImage, 300, 360, 200, 200, this);
+            }
 
             if(currentCombo>=0)
             {

@@ -10,24 +10,26 @@ public class SoundManager
 {
     private static Clip musicClip;
 
+    private static AudioInputStream open(String fileName) throws Exception
+    {
+        java.net.URL url = SoundManager.class.getResource("/sounds/"+fileName);
+        if(url != null)
+        {
+            return AudioSystem.getAudioInputStream(url);
+        }
+        return AudioSystem.getAudioInputStream(new File("sounds/"+fileName));
+    }
+
     public static void play(String fileName)
     {
-        File f = new File("sounds/"+fileName);
-
-        if(!f.exists())
-        {
-            return;
-        }
-
         try{
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(f);
+            AudioInputStream audioIn = open(fileName);
             Clip clip = AudioSystem.getClip();
             clip.open(audioIn);
             clip.start();
         }
         catch(Exception e)
         {
-            System.out.println("sound error: "+fileName);
         }
     }
 
@@ -38,7 +40,7 @@ public class SoundManager
 
     public static void kick()
     {
-        play("kick.wave");
+        play("kick.wav");
     }
 
     public static void block()
@@ -68,13 +70,6 @@ public class SoundManager
 
     public static void music()
     {
-        File f = new File("sounds/music.wav");
-
-        if(!f.exists())
-        {
-            return;
-        }
-
         try
         {
             if(musicClip!= null)
@@ -82,7 +77,7 @@ public class SoundManager
                 musicClip.stop();
                 musicClip.close();
             }
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(f);
+            AudioInputStream audioIn = open("music.wav");
             musicClip = AudioSystem.getClip();
             musicClip.open(audioIn);
             musicClip.loop(Clip.LOOP_CONTINUOUSLY);

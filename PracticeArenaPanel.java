@@ -1,10 +1,6 @@
 import javax.swing.*;
-import javax.swing.border.Border;
-
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-
 
 public class PracticeArenaPanel extends JPanel implements ActionListener, KeyListener
 {
@@ -12,433 +8,344 @@ public class PracticeArenaPanel extends JPanel implements ActionListener, KeyLis
     private final CardLayout cardLayout;
     private final Information gameInfo;
 
-    private Timer arenaTimer;
-    private int simulationTime;
-    
-    private final SinglyLinkedList<String> inputBuffer = new SinglyLinkedList<>();
-    private final SinglyLinkedList<String> loggedInputs = new SinglyLinkedList<>();
-    private final SinglyLinkedList<String> detectedCombos = new SinglyLinkedList<>();
+    private static final int PUNCH = 0;
+    private static final int BLOCK = 1;
+    private static final int KICK = 2;
+    private static final int UPPERCUT = 3;
+    private static final int ROUNDHOUSE = 4;
+    private static final int TOTAL_ANIMS = 5;
+    private static final int DELAY_FRAMES = 3;
 
-    private long enemyAttackStartTime = 0;
-    private boolean isEnemyAttacking = false;
-    private long succesfulBlockTime;
+    private Image dojoImg;
 
-    private int totalEnemyAttacks = 0;
-    private int succesfulBlocks = 0;
-    private long totalReactionTimeMs = 0;
-    private double blockSuccessRate = 0.0;
-    
-    private JSlider enemySpeedSlider;
-    private JSlider attackRateSlider;
-    private JComboBox<String> opponentStyleSelector;
+    private int playerX = 150;
+    private int playerAnim = -1;
+    private int playerFrame = 0;
+    private int playerDelay = 0;
+    private Image[][] playerFrames;
+    private Image playerDefault;
 
-    private JTextArea inputLogArea;
-    private JTextArea comboConsole;
-    private JLabel statsLabel;
-    
+    private int enemyX = 490;
+    private int enemyAnim = -1;
+    private int enemyFrame = 0;
+    private int enemyDelay = 0;
+    private Image[][] enemyFrames;
+    private Image enemyDefault;
 
-    private int dummyPlayerX = 150;
-    private int dummyEnemyX = 550;
-    private String dummyPlayerAction = "STANCE";
-    private String dummyEnemyAction = "STANCE";
+    private ComboQueue comboQueue;
+    private String comboName = null;
+    private Timer comboTimer;
+
+    private Timer frameTimer;
+    private int tickCount = 0;
+
+    private boolean showHitFlash = false;
+    private boolean showBlockedText = false;
 
     public PracticeArenaPanel(JPanel parentHolderIn, CardLayout cardLayoutIn, Information gameInfoIn)
     {
-        this.parentHolder = parentHolderIn;
-        this.cardLayout = cardLayoutIn;
-        this.gameInfo = gameInfoIn;
-        
-        setPreferredSize(new Dimension(800,600));
-        setBackground(new Color(15,20,30));
-        setLayout(null);
+        parentHolder = parentHolderIn;
+        cardLayout = cardLayoutIn;
+        gameInfo = gameInfoIn;
 
-        initializeSimulationControls();
-        initializeDashboard();
+        comboQueue = new ComboQueue();
 
-        arenaTimer= new Timer(33, this);
+        setLayout(new BorderLayout());
+
+        JPanel southPanel = new JPanel();
+        JButton backButton = new JButton("Back to Levels");
+        backButton.setPreferredSize(new Dimension(160,40));
+        backButton.setFocusable(false);
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt)
+            {
+                stopArena();
+                cardLayout.show(parentHolder, "Levels");
+            }
+        });
+        southPanel.add(backButton);
+        add(southPanel, BorderLayout.SOUTH);
+
+        comboTimer = new Timer(1500, new ActionListener() {
+            public void actionPerformed(ActionEvent evt)
+            {
+                comboName = null;
+                repaint();
+            }
+        });
+        comboTimer.setRepeats(false);
+
+        frameTimer = new Timer(105, this);
 
         setFocusable(true);
         addKeyListener(this);
-
-    }
-
-    private void initializeSimulationControls()
-    {
-        JPanel controlPanel= new JPanel();
-        controlPanel.setLayout(null);
-        controlPanel.setBounds(540,20,240,360);
-        controlPanel.setBackground(new Color(25,30,45,200));
-        controlPanel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(255,255,255,6)),
-            "Simulator Settings",0,0,
-            new Font("Monospaced", Font.BOLD,14),Color.YELLOW
-        ));
-        JLabel styleLabel = new JLabel("Oppenent Archetype:");
-        styleLabel.setForeground(Color.WHITE);
-        styleLabel.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        styleLabel.setBounds(15,30,210,20);
-        controlPanel.add(styleLabel);
-
-        String[] styles = {"Balanced AI","Aggresive Rush","Defensive Counters"};
-        opponentStyleSelector = new JComboBox<>(styles);
-        opponentStyleSelector.setBounds(15,55,210,25);
-        opponentStyleSelector.setBackground(new Color(40,45,60));
-        opponentStyleSelector.setForeground(Color.WHITE);
-        controlPanel.add(opponentStyleSelector);
-
-        JLabel speedLabel = new JLabel("Enemy Speed Multiplier");
-        speedLabel.setForeground(Color.WHITE);
-        speedLabel.setFont(new Font("Monospaced",Font.PLAIN,12));
-        speedLabel.setBounds(15,100,210,20);
-        controlPanel.add(speedLabel);
-
-        enemySpeedSlider = new JSlider(1,5,2);
-        enemySpeedSlider.setBounds(15,125,210,40);
-        enemySpeedSlider.setBackground(new Color(25,30,45));
-        enemySpeedSlider.setForeground(Color.WHITE);
-        enemySpeedSlider.setMajorTickSpacing(1);
-        enemySpeedSlider.setPaintTicks(true);
-        enemySpeedSlider.setPaintLabels(true);
-        controlPanel.add(enemySpeedSlider);
-
-        JLabel rateLabel = new JLabel("Attack Interval (sec)");
-        rateLabel.setForeground(Color.WHITE);
-        rateLabel.setFont(new Font("Monospaced",Font.PLAIN,12));
-        rateLabel.setBounds(15,185,210,20);
-        controlPanel.add(rateLabel);
-
-        JButton triggerAttackBtn = new JButton("Froced Enemy Strike");
-        triggerAttackBtn.setBounds(15,270,210,30);
-        triggerAttackBtn.setFont(new Font("Monospaced",Font.BOLD,12));
-        triggerAttackBtn.setBackground(new Color(255,75,75));
-        triggerAttackBtn.setForeground(Color.WHITE);
-        triggerAttackBtn.setFocusable(false);
-        triggerAttackBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                simulateEnemyAttack();
-            }
-        });
-        controlPanel.add(triggerAttackBtn);
-        add(controlPanel);
-    }
-
-    private void initializeDashboard(){
-        JLabel logLabel = new JLabel("Live Input Buffer:");
-        logLabel.setForeground(Color.CYAN);
-        logLabel.setFont(new Font("Monospaced", Font.BOLD,14));
-        logLabel.setBounds(20,20,200,20);
-        add(logLabel);
-
-        inputLogArea = new JTextArea();
-        inputLogArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
-        inputLogArea.setForeground(Color.WHITE);
-        inputLogArea.setBackground(Color.GREEN);
-        inputLogArea.setEditable(false);
-        inputLogArea.setBorder(BorderFactory.createLineBorder(new Color(255,255,255,30)));
-
-        JScrollPane logScroll = new JScrollPane(inputLogArea);
-        logScroll.setBounds(20,45,230,120);
-        add(logScroll);
-
-        JLabel comboLabel = new JLabel("Detected Combos");
-        comboLabel.setForeground(Color.ORANGE);
-        comboLabel.setFont(new Font("Monospaced",Font.BOLD,14));
-        comboLabel.setBounds(270,20,200,20);
-        add(comboLabel);
-
-        comboConsole = new JTextArea();
-        comboConsole.setFont(new Font("Monospaced",Font.PLAIN,13));
-        comboConsole.setForeground(Color.ORANGE);
-        comboConsole.setBackground(new Color(10,15,20));
-        comboConsole.setEditable(false);
-        comboConsole.setBorder(BorderFactory.createLineBorder(new Color(255,255,255,30)));
-
-        JScrollPane comboScroll = new JScrollPane(comboConsole);
-        comboScroll.setBounds(270,45,250,120);
-        add(comboScroll);
-
-        JPanel statsPanel = new JPanel();
-        statsPanel.setLayout(null);
-        statsPanel.setBounds(20,185,500,100);
-        statsPanel.setBackground(new Color(25,30,40));
-        statsPanel.setBorder(BorderFactory.createLineBorder(new Color (255,255,255,30)));
-
-        statsLabel = new JLabel("<html><b>TRAINING PERFORMANCE LOGS:</b><br/>" +
-            "Total Attacks: 0 | Succesful Blocks: 0<br/>" +
-            "Block Success Rate: 0.0%<br/>" +
-            "Average Reflex Response Time: 0ms</html>");
-        statsLabel.setFont(new Font("Monospaced",Font.PLAIN,13));
-        statsLabel.setForeground(Color.WHITE);
-        statsLabel.setBounds(15,10,470,80);
-        statsPanel.add(statsLabel);
-        add(statsPanel);
-
-        JButton resetStatsBtn = new JButton("Reset Statistics");
-        resetStatsBtn.setBounds(20,300,160,30);
-        resetStatsBtn.setFont(new Font("Monospaced",Font.PLAIN,13));
-        resetStatsBtn.setBackground(new Color(40,50,65));
-        resetStatsBtn.setForeground(Color.WHITE);
-        resetStatsBtn.setFocusable(false);
-        resetStatsBtn.addActionListener(e -> resetStats());
-        add(resetStatsBtn);
-
-        JButton backBtn = new JButton("Back to Menu");
-        backBtn.setBounds(360,300,160,30);
-        backBtn.setFont(new Font("Monospaced",Font.BOLD,12));
-        backBtn.setBackground(new Color(40,50,65));
-        backBtn.setForeground(Color.WHITE);
-        backBtn.setFocusable(false);
-        backBtn.addActionListener(e ->{
-            stopArena();
-            cardLayout.show(parentHolder,"First");
-        });
-        add(backBtn);
-
     }
 
     public void startArena()
     {
-        arenaTimer.start();
-        resetStats();
+        dojoImg = gameInfo.getMyImage("dojo.png");
+
+        String pDir = "animations/default";
+        String type = gameInfo.getCharacterType();
+        if(type.equals("ninja"))
+        {
+            pDir = "animations/ryu";
+        }
+        else if(type.equals("sumo"))
+        {
+            pDir = "animations/zangief";
+        }
+        playerDefault = gameInfo.getMyImage(pDir + "/default.png");
+        playerFrames = loadAnimFrames(pDir, playerDefault);
+        enemyDefault = gameInfo.getMyImage("enemy_animations/default/default.png");
+        enemyFrames = loadAnimFrames("enemy_animations/default", enemyDefault);
+
+        playerX = 150;
+        enemyX = 490;
+        playerAnim = -1;
+        playerFrame = 0;
+        playerDelay = 0;
+        enemyAnim = -1;
+        enemyFrame = 0;
+        enemyDelay = 0;
+        comboName = null;
+        tickCount = 0;
+        comboQueue.clear();
+
+        frameTimer.start();
         requestFocusInWindow();
+        repaint();
     }
 
-     public void stopArena()
-     {
-        arenaTimer.stop();
-     }
-
-     private void resetStats()
-     {
-        totalEnemyAttacks = 0;
-        succesfulBlocks =0;
-        totalReactionTimeMs = 0;
-        blockSuccessRate = 0.0;
-        loggedInputs.clear();
-        detectedCombos.clear();
-        inputBuffer.clear();
-        updateDashboardTexts();
-     }
-
-     private void updateDashboardTexts()
-     {
-        long avgReflex = succesfulBlocks > 0 ? (totalReactionTimeMs / succesfulBlocks) : 0;
-        blockSuccessRate = totalEnemyAttacks > 0 ? (((double) succesfulBlocks / totalEnemyAttacks) * 100) : 0.0;
-        
-        statsLabel.setText(String.format(
-            "<html><b>TRAINING PERFORMANCE LOGS:</b><br/>" +
-            "Total Attacks: %d | Successful Blocks: %d<br/>" +
-            "Block Success Rate: %.1f%%<br/>" +
-            "Average Reflex Response Time: %d ms</html>",
-            totalEnemyAttacks, succesfulBlocks, blockSuccessRate, avgReflex
-        ));
-
-        // Update Log Area (display last 8 logged items using your SinglyLinkedList nodes)
-        StringBuilder logBuilder = new StringBuilder();
-        int logSize = loggedInputs.size();
-        int logStartIndex = Math.max(0, logSize - 8);
-        ListNode<String> currentLog = loggedInputs.getHead();
-        int idx = 0;
-        while (currentLog != null) {
-            if (idx >= logStartIndex) {
-                logBuilder.append(currentLog.getValue()).append("\n");
-            }
-            currentLog = currentLog.getNext();
-            idx++;
-        }
-        inputLogArea.setText(logBuilder.toString());
-
-        // Update Combos Area
-        StringBuilder comboBuilder = new StringBuilder();
-        int comboSize = detectedCombos.size();
-        int comboStartIndex = Math.max(0, comboSize - 8);
-        ListNode<String> currentCombo = detectedCombos.getHead();
-        idx = 0;
-        while (currentCombo != null) {
-            if (idx >= comboStartIndex) {
-                comboBuilder.append(currentCombo.getValue()).append("\n");
-            }
-            currentCombo = currentCombo.getNext();
-            idx++;
-        }
-        comboConsole.setText(comboBuilder.toString());
-    }
-
-    private void simulateEnemyAttack()
+    public void stopArena()
     {
-        if (isEnemyAttacking) return;
-        
-        isEnemyAttacking = true;
-        totalEnemyAttacks++;
-        dummyEnemyAction = "ATTACK";
-        enemyAttackStartTime = System.currentTimeMillis();
-        
-        // Auto-reset enemy pose after 400ms if not blocked
-        Timer windDown = new Timer(400, e -> {
-            if (isEnemyAttacking) {
-                isEnemyAttacking = false;
-                dummyEnemyAction = "STANCE";
-                updateDashboardTexts();
-            }
-        });
-        windDown.setRepeats(false);
-        windDown.start();
-        
-        updateDashboardTexts();
+        frameTimer.stop();
     }
 
-    // Central loop tick running at 30 FPS
-    @Override
-    public void actionPerformed(ActionEvent e)
+    private Image[][] loadAnimFrames(String dir, Image defaultFrame)
     {
-        simulationTime++;
-        
-        // Dynamic automatic attacks based on slider frequency settings
-        int intervalFrames = attackRateSlider.getValue() * 30;
-        if (simulationTime % intervalFrames == 0) {
-            simulateEnemyAttack();
+        Image[][] target = new Image[TOTAL_ANIMS][];
+
+        target[PUNCH] = new Image[4];
+        target[PUNCH][0] = defaultFrame;
+        target[PUNCH][1] = gameInfo.getMyImage(dir + "/punch_animation copy/frame1.png");
+        target[PUNCH][2] = gameInfo.getMyImage(dir + "/punch_animation copy/frame2.png");
+        target[PUNCH][3] = gameInfo.getMyImage(dir + "/punch_animation copy/frame3.png");
+
+        target[BLOCK] = new Image[4];
+        target[BLOCK][0] = defaultFrame;
+        target[BLOCK][1] = gameInfo.getMyImage(dir + "/block_animation/frame1.png");
+        target[BLOCK][2] = gameInfo.getMyImage(dir + "/block_animation/frame2.png");
+        target[BLOCK][3] = gameInfo.getMyImage(dir + "/block_animation/frame3.png");
+
+        target[KICK] = new Image[4];
+        target[KICK][0] = defaultFrame;
+        target[KICK][1] = gameInfo.getMyImage(dir + "/kick_animation/frame1.png");
+        target[KICK][2] = gameInfo.getMyImage(dir + "/kick_animation/frame2.png");
+        target[KICK][3] = gameInfo.getMyImage(dir + "/kick_animation/frame3.png");
+
+        target[UPPERCUT] = new Image[5];
+        target[UPPERCUT][0] = defaultFrame;
+        target[UPPERCUT][1] = gameInfo.getMyImage(dir + "/uppercut_animation/frame1.png");
+        target[UPPERCUT][2] = gameInfo.getMyImage(dir + "/uppercut_animation/frame2.png");
+        target[UPPERCUT][3] = gameInfo.getMyImage(dir + "/uppercut_animation/frame3.png");
+        target[UPPERCUT][4] = gameInfo.getMyImage(dir + "/uppercut_animation/frame4.png");
+
+        target[ROUNDHOUSE] = new Image[10];
+        target[ROUNDHOUSE][0] = defaultFrame;
+        target[ROUNDHOUSE][1] = gameInfo.getMyImage(dir + "/roundhouse_animations/frame1.png");
+        target[ROUNDHOUSE][2] = gameInfo.getMyImage(dir + "/roundhouse_animations/frame2.png");
+        target[ROUNDHOUSE][3] = gameInfo.getMyImage(dir + "/roundhouse_animations/frame3.png");
+        target[ROUNDHOUSE][4] = gameInfo.getMyImage(dir + "/roundhouse_animations/frame4.png");
+        target[ROUNDHOUSE][5] = gameInfo.getMyImage(dir + "/roundhouse_animations/frame5.png");
+        target[ROUNDHOUSE][6] = gameInfo.getMyImage(dir + "/roundhouse_animations/frame6.png");
+        target[ROUNDHOUSE][7] = gameInfo.getMyImage(dir + "/roundhouse_animations/frame7.png");
+        target[ROUNDHOUSE][8] = gameInfo.getMyImage(dir + "/roundhouse_animations/frame8.png");
+        target[ROUNDHOUSE][9] = gameInfo.getMyImage(dir + "/roundhouse_animations/frame9.png");
+
+        return target;
+    }
+
+    public void actionPerformed(ActionEvent evt)
+    {
+        tickCount++;
+
+        if(tickCount % 28 == 0 && enemyAnim < 0)
+        {
+            double r = Math.random();
+            if(r < 0.5)
+            {
+                enemyAnim = PUNCH;
+            }
+            else
+            {
+                enemyAnim = KICK;
+            }
+            enemyFrame = 0;
+            enemyDelay = 0;
         }
 
-        // Keep focus
-        if (simulationTime % 30 == 0) {
-            requestFocusInWindow();
+        if(playerAnim >= 0)
+        {
+            int len = playerFrames[playerAnim].length;
+            if(playerFrame < len - 1)
+            {
+                playerFrame++;
+            }
+            else if(playerDelay < DELAY_FRAMES)
+            {
+                playerDelay++;
+            }
+            else
+            {
+                playerFrame = 0;
+                playerAnim = -1;
+                playerDelay = 0;
+            }
+        }
+
+        if(enemyAnim >= 0)
+        {
+            int len = enemyFrames[enemyAnim].length;
+            if(enemyFrame < len - 1)
+            {
+                enemyFrame++;
+                if(enemyFrame == len - 2 && Math.abs(enemyX - playerX) < 220)
+                {
+                    if(playerAnim == BLOCK)
+                    {
+                        showBlockedText = true;
+                        SoundManager.block();
+                    }
+                    else
+                    {
+                        showHitFlash = true;
+                        playerX = Math.max(0, playerX - 40);
+                        SoundManager.punch();
+                    }
+                }
+            }
+            else if(enemyDelay < DELAY_FRAMES)
+            {
+                enemyDelay++;
+            }
+            else
+            {
+                enemyFrame = 0;
+                enemyAnim = -1;
+                enemyDelay = 0;
+            }
         }
 
         repaint();
     }
 
-    @Override
     public void keyPressed(KeyEvent e)
     {
-        int key = e.getKeyCode();
-        String inputKey = "";
+        int k = e.getKeyCode();
+        String move = null;
 
-        if (key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN) {
-            inputKey = "BLOCK";
-            dummyPlayerAction = "BLOCKING";
-        } else if (key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT) {
-            inputKey = "BACKWARD";
-            dummyPlayerX = Math.max(50, dummyPlayerX - 8);
-        } else if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT) {
-            inputKey = "FORWARD";
-            dummyPlayerX = Math.min(300, dummyPlayerX + 8);
-        } else if (key == KeyEvent.VK_J) {
-            inputKey = "KICK";
-            dummyPlayerAction = "KICKING";
-        } else if (key == KeyEvent.VK_K) {
-            inputKey = "PUNCH";
-            dummyPlayerAction = "PUNCHING";
-        }
-
-        if (!inputKey.isEmpty()) {
-            registerPlayerInput(inputKey);
-        }
-    }
-
-    private void registerPlayerInput(String inputKey)
-    {
-        long now = System.currentTimeMillis();
-        loggedInputs.addLast(inputKey + " @ " + now % 100000 + "ms");
-
-        // Add to active combo parsing buffer
-        inputBuffer.addLast(inputKey);
-        if (inputBuffer.size() > 4) {
-            inputBuffer.remove(0); // Pop first item to maintain size of 4
-        }
-
-        // 1. Evaluate Reaction Reflex
-        if (inputKey.equals("BLOCK") && isEnemyAttacking) {
-            isEnemyAttacking = false;
-            dummyEnemyAction = "STANCE";
-            succesfulBlocks++;
-            long reflexMs = now - enemyAttackStartTime;
-            totalReactionTimeMs += reflexMs;
-            detectedCombos.addLast("REFLEX BLOCK: " + reflexMs + "ms!");
-        }
-
-        // 2. Evaluate Combo Patterns
-        checkComboSequences();
-        updateDashboardTexts();
-    }
-
-    private void checkComboSequences()
-    {
-        // Construct string representing key sequence in the SinglyLinkedList
-        StringBuilder sequence = new StringBuilder();
-        ListNode<String> current = inputBuffer.getHead();
-        while (current != null) {
-            sequence.append(current.getValue()).append("->");
-            current = current.getNext();
-        }
-        String segStr = sequence.toString();
-        if(segStr.contains("BACKWARD->BLOCK->PUNCH")){
-            detectedCombos.addLast("COMBO: Perfect Parry Counter!");
-            inputBuffer.clear();
-        }
-        else if(segStr.contains("BLOCK->KICK->PUNCH"))
+        if(k == KeyEvent.VK_F)
         {
-            detectedCombos.addLast("COMBO: Shield Smash Combo!");
-            inputBuffer.clear();
+            move = "Punch";
+            playerAnim = PUNCH;
         }
-    }
-
-    public void keyReleased(KeyEvent e)
-    {
-        int key = e.getKeyCode();
-        if(key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN || key == KeyEvent.VK_J || key == KeyEvent.VK_K)
+        else if(k == KeyEvent.VK_D)
         {
-            dummyPlayerAction = "STANCE";
+            move = "Block";
+            playerAnim = BLOCK;
+        }
+        else if(k == KeyEvent.VK_V)
+        {
+            move = "Kick";
+            playerAnim = KICK;
+        }
+        else if(k == KeyEvent.VK_R)
+        {
+            move = "Uppercut";
+            playerAnim = UPPERCUT;
+        }
+        else if(k == KeyEvent.VK_E)
+        {
+            move = "Roundhouse";
+            playerAnim = ROUNDHOUSE;
+        }
+        else if(k == KeyEvent.VK_LEFT)
+        {
+            playerX = Math.max(0, playerX - 20);
+        }
+        else if(k == KeyEvent.VK_RIGHT)
+        {
+            playerX = Math.min(600, playerX + 20);
         }
 
+        if(move != null)
+        {
+            playerFrame = 0;
+            playerDelay = 0;
+            comboQueue.addMove(move);
+
+            String detected = comboQueue.checkCombo();
+            if(detected != null)
+            {
+                comboName = detected;
+                comboTimer.restart();
+                SoundManager.combo();
+            }
+        }
+        repaint();
     }
 
+    public void keyReleased(KeyEvent e){}
     public void keyTyped(KeyEvent e){}
 
     protected void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D)g;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+        requestFocusInWindow();
 
-        g2d.setColor(new Color(40,45,60));
-        g2d.fillRect(0,360,getWidth(),getHeight()-360);
-        g2d.setColor(new Color(60, 70, 90));
-        g2d.setStroke(new BasicStroke(3));
-        g2d.drawLine(0, 360, getWidth(), 360);
+        g.drawImage(dojoImg, 0, 0, 800, 600, this);
 
-        // Grid lines on floor for depth visual
-        g2d.setColor(new Color(50, 55, 75));
-        for (int i = 0; i < getWidth(); i += 80) {
-            g2d.drawLine(i, 360, i - 100, getHeight());
+        g.setColor(new Color(255,255,255,220));
+        g.setFont(new Font("Arial", Font.BOLD, 26));
+        g.drawString("PRACTICE ARENA", 290, 50);
+        g.setFont(new Font("Arial", Font.BOLD, 15));
+        g.drawString("Free practice: F punch  D block  V kick  R uppercut  E roundhouse  |  arrows to move", 90, 80);
+
+        Image pImg = playerDefault;
+        if(playerAnim >= 0)
+        {
+            pImg = playerFrames[playerAnim][playerFrame];
+        }
+        g.drawImage(pImg, playerX, 215, 200, 290, this);
+
+        Image eImg = enemyDefault;
+        if(enemyAnim >= 0)
+        {
+            eImg = enemyFrames[enemyAnim][enemyFrame];
+        }
+        g.drawImage(eImg, enemyX, 215, 200, 290, this);
+
+        if(comboName != null)
+        {
+            g.setColor(new Color(255,215,0));
+            g.setFont(new Font("Arial", Font.BOLD, 32));
+            g.drawString(comboName + "!", 60, 130);
         }
 
-        // Render dummy characters (simplified silhouettes for practice representation)
-        // Draw Player Dummy
-        g2d.setColor(Color.CYAN);
-        g2d.drawString("PLAYER (Active Keys: A,D,S,J,K)", dummyPlayerX - 40, 405);
-        if (dummyPlayerAction.equals("BLOCKING")) {
-            g2d.fillRoundRect(dummyPlayerX - 25, 460, 50, 50, 10, 10); // Squat block stance
-        } else if (dummyPlayerAction.equals("KICKING")) {
-            g2d.fillRoundRect(dummyPlayerX - 25, 420, 50, 90, 10, 10);
-            g2d.fillRect(dummyPlayerX + 25, 460, 45, 15); // Extended leg
-        } else if (dummyPlayerAction.equals("PUNCHING")) {
-            g2d.fillRoundRect(dummyPlayerX - 25, 420, 50, 90, 10, 10);
-            g2d.fillRect(dummyPlayerX + 25, 435, 40, 15); // Extended fist
-        } else {
-            g2d.fillRoundRect(dummyPlayerX - 25, 420, 50, 90, 10, 10); // Idle standing
+        if(showHitFlash)
+        {
+            g.setColor(new Color(255,0,0,120));
+            g.fillOval(playerX + 70, 280, 60, 60);
+            showHitFlash = false;
         }
 
-        // Draw Enemy Dummy
-        g2d.setColor(Color.RED);
-        g2d.drawString("SIMULATOR DUMMY", dummyEnemyX - 35, 405);
-        if (dummyEnemyAction.equals("ATTACK")) {
-            g2d.fillRoundRect(dummyEnemyX - 25, 420, 50, 90, 10, 10);
-            g2d.setColor(Color.ORANGE);
-            g2d.fillRect(dummyEnemyX - 70, 435, 45, 15); // Striking forward
-        } else {
-            g2d.fillRoundRect(dummyEnemyX - 25, 420, 50, 90, 10, 10); // Idle
+        if(showBlockedText)
+        {
+            g.setColor(new Color(120,220,255));
+            g.setFont(new Font("Arial", Font.BOLD, 28));
+            g.drawString("Blocked!", playerX + 30, 190);
+            showBlockedText = false;
         }
-    
     }
-}   
+}

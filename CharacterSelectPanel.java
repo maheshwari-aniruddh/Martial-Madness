@@ -48,6 +48,11 @@ public class CharacterSelectPanel extends JPanel
                 {
                     info.setCharacterType("sumo");
                 }
+                else if(command.equals("Back"))
+                {
+                    cards.show(mmh, "Instructions");
+                    return;
+                }
                 cards.show(mmh, "LevelHolder");
             }
         }
@@ -74,6 +79,14 @@ public class CharacterSelectPanel extends JPanel
         buttonPanel.add(ninjaButton);
         buttonPanel.add(sumoChar);
 
-        add(buttonPanel, BorderLayout.CENTER);  
+        add(buttonPanel, BorderLayout.CENTER);
+
+        JPanel southPanel = new JPanel();
+        southPanel.setBackground(new Color(143,145,218));
+        JButton backButton = new JButton("Back");
+        backButton.setPreferredSize(new Dimension(120,40));
+        backButton.addActionListener(cbh);
+        southPanel.add(backButton);
+        add(southPanel, BorderLayout.SOUTH);
     }
 }

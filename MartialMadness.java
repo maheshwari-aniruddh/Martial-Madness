@@ -310,7 +310,7 @@ class InstructionPanel extends JPanel
         JPanel centerPanel = new JPanel();
         centerPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
         JTextArea howToPlayTxt = new JTextArea(
-            "This is a java game to teach self defense, you will learn defense moves to save yourself in combat. There will be a tutorial so you can learn how to play and then you will play in the level. You can block, kick, punch and move left and right. As you progress you will learn stronger and better moves. In the gameplay, you both have health bars and the enemy health bar will deplete at a set rate and you have to defend yourself until the time runs out. The enemy's attacks are random and their speed and complexity will also increase as you progress. Once you defeat the enemy, you can move on to the next level, THe enemy's attack are random and their speed and complexitry will also increase as you progress.\n\n COMBOS: SHadow Kick(F F V) | Hurrican Kick(F R E) | Dragon Sweep(V V R)| Counter Burst(D F E)| Death Blossom(R V F V)\n\n + NEW: Press ESC anytime to pause. Try 2player mode and the practice areana form the level selct screen! + HIts, combos, wins and losses now play sound effects. Unlock Achievments as you play: Firsy BLood, Combo Master, Untouchable, Death Blossom, and Grand Master", 15, 0
+            "This is a java game to teach self defense, you will learn defense moves to save yourself in combat. There will be a tutorial so you can learn how to play and then you will play in the level. You can block, kick, punch and move left and right. As you progress you will learn stronger and better moves. In the gameplay, you both have health bars and the enemy health bar will deplete at a set rate and you have to defend yourself until the time runs out. The enemy's attacks are random and their speed and complexity will also increase as you progress. Once you defeat the enemy, you can move on to the next level.\n\n COMBOS: Shadow Kick(F F V) | Hurricane Kick(F R E) | Dragon Sweep(V V R)| Counter Burst(D F E)| Death Blossom(R V F V)\n\n + NEW: Press ESC anytime to pause. Try 2 Player mode, the Practice Arena, the Shop and the Combo Lab from the level select screen! + Hits, combos, wins and losses now play sound effects. Unlock Achievements as you play: First Blood, Combo Master, Untouchable, Death Blossom, and Grand Master", 15, 0
         );
 
         howToPlayTxt.setLineWrap(true);
@@ -318,7 +318,7 @@ class InstructionPanel extends JPanel
         howToPlayTxt.setWrapStyleWord(true);
         howToPlayTxt.setEditable(false);
         centerPanel.setLayout(new BorderLayout());
-        centerPanel.add(howToPlayTxt, BorderLayout.NORTH);
+        centerPanel.add(new javax.swing.JScrollPane(howToPlayTxt), BorderLayout.CENTER);
 
         class CheckBoxListener implements ActionListener
         {
@@ -635,6 +635,8 @@ class LevelPanel extends JPanel
         btnPractice.setPreferredSize( new Dimension(130,80));
         btnPractice.setBackground(new Color(70,130,180));
         btnPractice.setForeground(Color.WHITE);
+        btnPractice.setOpaque(true);
+        btnPractice.setBorderPainted(false);
         btnPractice.addActionListener(bh);
         centerPanel.add(btnPractice);
 
@@ -642,6 +644,8 @@ class LevelPanel extends JPanel
         btn2P.setPreferredSize(new Dimension(130,80));
         btn2P.setBackground(new Color(180,60,60));
         btn2P.setForeground(Color.WHITE);
+        btn2P.setOpaque(true);
+        btn2P.setBorderPainted(false);
         btn2P.addActionListener(bh);
         centerPanel.add(btn2P);
 
@@ -649,6 +653,8 @@ class LevelPanel extends JPanel
         btnShop.setPreferredSize(new Dimension(130,80));
         btnShop.setBackground(new Color(218,165,32));
         btnShop.setForeground(Color.WHITE);
+        btnShop.setOpaque(true);
+        btnShop.setBorderPainted(false);
         btnShop.addActionListener(bh);
         centerPanel.add(btnShop);
 
@@ -656,6 +662,8 @@ class LevelPanel extends JPanel
         btnComboLab.setPreferredSize(new Dimension(130,80));
         btnComboLab.setBackground(new Color(100,60,160));
         btnComboLab.setForeground(Color.WHITE);
+        btnComboLab.setOpaque(true);
+        btnComboLab.setBorderPainted(false);
         btnComboLab.addActionListener(bh);
         centerPanel.add(btnComboLab);
 

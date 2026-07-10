@@ -364,6 +364,12 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
         else if(p1AnimPlaying == UPPERCUT)
         {
             info.setPoints(1);
+            hurtP2(UPPER_DMG,UPPER_PUSH);
+            SoundManager.punch();
+        }
+        else if(p1AnimPlaying == ROUNDHOUSE)
+        {
+            info.setPoints(1);
             hurtP2(RH_DMG,RH_PUSH);
             SoundManager.roundhouse();
         }
@@ -554,6 +560,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
                 SoundManager.win();
             }
         }
+
     }
 
     public void keyPressed(KeyEvent e)
@@ -577,7 +584,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
             return;
         }
 
-        if(k==KeyEvent.VK_SPACE)
+        if(k==KeyEvent.VK_F)
         {
             p1Combo.addMove("Punch");
             p1AnimPlaying = PUNCH;
@@ -626,48 +633,48 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
         }
 
         // player 2 stuff
-        else if(k == KeyEvent.VK_NUMPAD7)
+        else if(k == KeyEvent.VK_NUMPAD7 || k == KeyEvent.VK_7)
         {
             p2Combo.addMove("Punch");
             p2AnimPlaying = PUNCH;
             p2Frame = 0;
             p2Delay = 0;
         }
-        else if(k== KeyEvent.VK_NUMPAD4)
+        else if(k == KeyEvent.VK_NUMPAD4 || k == KeyEvent.VK_4)
         {
             p2Combo.addMove("Block");
             p2AnimPlaying = BLOCK;
             p2Frame = 0;
             p2Delay = 0;
         }
-        else if (k == KeyEvent.VK_NUMPAD8)
+        else if (k == KeyEvent.VK_NUMPAD8 || k == KeyEvent.VK_8)
         {
             p2Combo.addMove("Kick");
             p2AnimPlaying = KICK;
             p2Frame = 0;
             p2Delay = 0;
         }
-        else if(k== KeyEvent.VK_NUMPAD9)
+        else if(k == KeyEvent.VK_NUMPAD9 || k == KeyEvent.VK_9)
         {
             p2Combo.addMove("Uppercut");
             p2AnimPlaying = UPPERCUT;
             p2Frame = 0;
             p2Delay = 0;
         }
-        else if(k ==KeyEvent.VK_NUMPAD6)
+        else if(k == KeyEvent.VK_NUMPAD6 || k == KeyEvent.VK_6)
         {
             p2Combo.addMove("Roundhouse");
             p2AnimPlaying = ROUNDHOUSE;
             p2Frame = 0;
             p2Delay = 0;
         }
-        else if(k == KeyEvent.VK_NUMPAD1)
+        else if(k == KeyEvent.VK_NUMPAD1 || k == KeyEvent.VK_1)
         {
             p2AnimPlaying = FORWARD;
             p2Frame = 0;
             p2Delay = 0;
         }
-        else if(k == KeyEvent.VK_NUMPAD3)
+        else if(k == KeyEvent.VK_NUMPAD3 || k == KeyEvent.VK_3)
         {
             p2AnimPlaying = BACKWARD;
             p2Frame = 0;
@@ -705,7 +712,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
                     if(p2X>600) p2X = 600;
                 }
                 else{
-                    p2X = p2X = p1MoveAmt;
+                    p2X = p2X + p1MoveAmt;
                     if(p2X<0) p2X = 0;
                 }
             }
@@ -755,7 +762,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
                 if(p1X < newP2X)
                 {
                     p1X = p1X + p2MoveAmt;
-                    if(p1X>600) p1X = 0;
+                    if(p1X<0) p1X = 0;
                 }
                 else{
                     p1X = p1X + p2MoveAmt;
@@ -848,7 +855,8 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
             g.setFont(new Font("Arial",Font.BOLD,22));
             g.drawString("Time: " + timeLeft, 350,50);
         }
-        if(p1Combo!= null)
+
+        if(p1ComboName != null)
         {
             g.setColor(new Color(255,215,0));
             g.setFont(new Font("Arial",Font.BOLD,30));
@@ -871,7 +879,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
             g.setFont(new Font("Arial",Font.BOLD,20));
             g.setColor(Color.DARK_GRAY);
             g.drawString("P1: F D V R E + arrow keys to move",115,210);
-            g.drawString("P2: Numpad 7 4 8 9 6 + Numpad 1/3 to move", 115,250);
+            g.drawString("P2: 7 4 8 9 6 keys + 1/3 to move", 115,250);
             g.setFont(new Font("Arial",Font.BOLD,34));
             g.setColor(new Color(250,49,100));
             g.drawString("PRESS SPACE TO BEGIN", 140,330);
@@ -888,6 +896,7 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
             g.setColor(Color.DARK_GRAY);
             g.drawString("SPACE to play again | Back button for menu",100,260);
         }
+
     }
 
 }

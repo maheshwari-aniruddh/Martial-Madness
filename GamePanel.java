@@ -1113,7 +1113,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             AchievementManager.check("level_complete:"+levelNumber);
             if(tookDamageThisLevel == false)
             {
-                AchievementManager.check("untoucged win");
+                AchievementManager.check("untouched_win");
             }
             SoundManager.win();
             ShopPanel.addCoins(15 + levelNumber*5);

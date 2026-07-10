@@ -196,10 +196,10 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         }
         else if(charType.equals("sumo"))
         {
-            PLAYER_SPEED = 20;
-            PLAYER_MAX_HEALTH = 100;
-            FRAME_DELAY_MS = 105;
-            COMBO_MULT = 1.0;
+            PLAYER_SPEED = 14;
+            PLAYER_MAX_HEALTH = 140;
+            FRAME_DELAY_MS = 130;
+            COMBO_MULT = 1.5;
         }
         else{
             PLAYER_SPEED = 20;
@@ -207,6 +207,10 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             FRAME_DELAY_MS = 105;
             COMBO_MULT = 1.0;
         }
+
+        PLAYER_MAX_HEALTH = PLAYER_MAX_HEALTH + ShopPanel.healthBonus();
+        PLAYER_SPEED = PLAYER_SPEED + ShopPanel.speedBonus();
+        COMBO_MULT = COMBO_MULT + ShopPanel.comboBonus();
 
 
 
@@ -585,29 +589,34 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
                 comboQueue.addMove("Punch");
                 currentAnimation = PUNCH;
                 setAnimation(currentAnimation);
+                SoundManager.punch();
             }
             else if(keyCode == KeyEvent.VK_D)
             {
                 currentAnimation = BLOCK;
                 setAnimation(currentAnimation);
+                SoundManager.block();
             }
             else if(keyCode == KeyEvent.VK_V)
             {
                 comboQueue.addMove("Kick");
                 currentAnimation = KICK;
                 setAnimation(currentAnimation);
+                SoundManager.kick();
             }
             else if(keyCode == KeyEvent.VK_R)
             {
                 comboQueue.addMove("Uppercut");
                 currentAnimation = UPPERCUT;
                 setAnimation(currentAnimation);
+                SoundManager.punch();
             }
             else if(keyCode == KeyEvent.VK_E)
             {
                 comboQueue.addMove("Roundhouse");
                 currentAnimation = ROUNDHOUSE;
                 setAnimation(currentAnimation);
+                SoundManager.roundhouse();
             }
             else if(keyCode == KeyEvent.VK_LEFT)
             {
@@ -626,6 +635,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
                 countDownTimer.start();
                 enemyAttackTimer.start();
                 enemyHealthTimer.start();
+                SoundManager.music();
             }
         }
     }
@@ -1105,12 +1115,16 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             {
                 AchievementManager.check("untoucged win");
             }
-            SoundManager.win(); 
+            SoundManager.win();
+            ShopPanel.addCoins(15 + levelNumber*5);
             stopFight();
         }
         if(gameOver == 1)
         {
-
+            if(pointGiven)
+            {
+                ShopPanel.addCoins(3);
+            }
             stopFight();
         }
         gameOver = -1;
@@ -1131,7 +1145,11 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
             if(animationPlaying!=BLOCK && blockStamina < MAX_BLOCK_STAMINA)
             {
-                blockStamina++;
+                blockStamina = blockStamina + 1 + ShopPanel.guardBonus();
+                if(blockStamina > MAX_BLOCK_STAMINA)
+                {
+                    blockStamina = MAX_BLOCK_STAMINA;
+                }
             }
             if(animationPlaying>= 0)
             {

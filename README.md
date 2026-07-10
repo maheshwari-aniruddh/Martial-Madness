@@ -7,6 +7,30 @@ Why I made it:
 **Note** Here is the demo url since hackclub doesn't allow me to post a cdn link of the demo. 
 https://cdn.hackclub.com/019ea2c6-baa3-766b-82ee-7daf02664bff/Screen%20Recording%202026-06-03%20at%209.31.22%E2%80%AFPM.mov
 
+
+# Ship 2, heres whats new:
+- Shop - win fights to ear coins and then spend them on upgrades adn stuff 
+- Practice Arena - training djo with the backround and we can use it for practicing moves
+- 2 player mode - one dude with the regular controls and another one with the numpad
+- Combo Lab - practice combos, get graded S?A?B?C. earn coins
+- New combos on top the orginal combo system
+- Sound effects + music: so hteres a tune for win/loss, hit, block etc.
+- Perfect Parry - block at the last instant for bonus
+- Screen shake on hits
+- Fight stats
+- Escape to pause during fights
+
+## Key Controls for player 2:
+- 1 - move forward
+- 3 - move backward
+ - 4- block
+ - 6- roundhouse
+ - 7 - punch
+ - 9 - uppercut
+ 8 - kick
+
+ Requires numpad to play
+
 ## How to Play 
 - Use the tutorial for more detailed informaiotn about how to play the game.
 space to restart

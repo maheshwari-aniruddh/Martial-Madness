@@ -1,2 +1,8 @@
 *.class
 graphify-out/
+.DS_Store
+shop.txt
+achievements.txt
+combolab.txt
+bossrush_scores.txt
+old_builds/

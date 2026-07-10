@@ -505,4 +505,14 @@ class BossRushPanel extends JPanel implements ActionListener, KeyListener, Focus
     public void keyTyped(java.awt.event.KeyEvent e){}
     public void focusGained(java.awt.event.FocusEvent e){}
     public void focusLost(java.awt.event.FocusEvent e){}
+
+
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+        requestFocusInWindow();
+
+        int shakeX = 0;
+        int shakeY = 0;
+    }
 }

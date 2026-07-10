@@ -562,8 +562,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
                 countDownTimer.stop();
                 enemyAttackTimer.stop();
                 enemyHealthTimer.stop();
-
-
+                SoundManager.stopMusic();
             }
             else
             {
@@ -573,6 +572,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
                     countDownTimer.start();
                     enemyAttackTimer.start();
                     enemyHealthTimer.start();
+                    SoundManager.music();
                 }
             }
             repaint();
@@ -1000,8 +1000,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         
         g.drawString("Player Health",150,25);
         g.setColor(myProgressColor);
-        g.fillRect(150,30,myHealth.getValue()*2,30);
-        int barWidth = (myHealth.getValue()*200);
+        int barWidth = (myHealth.getValue()*200) / PLAYER_MAX_HEALTH;
         g.fillRect(150,30,barWidth,30);
         g.setColor(Color.WHITE);
         g.drawString("Enemy Health",450,25);

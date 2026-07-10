@@ -34,16 +34,6 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
     private boolean isPaused = false;
 
-    private JProgressBar myHealth;
-    private JProgressBar enemyHeatlh;
-
-
-    private int imageX;
-    private int imageY;
-    private int enemyImageX;
-    private int enemyImageY;
-
-
 
     private Color myProgressColor;
     private Color enemyProgressColor;
@@ -197,7 +187,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
         String charType = info.getCharacterType();
 
-        if(charType.equals("ninja"));
+        if(charType.equals("ninja"))
         {
             PLAYER_SPEED = 25;
             PLAYER_MAX_HEALTH = 80;
@@ -226,9 +216,6 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
 
         myHealth = new JProgressBar(0,PLAYER_MAX_HEALTH);
-
-
-        myHealth = new JProgressBar(0,100);
         enemyHealth = new JProgressBar(0,100);
         defaultPlayerStance = info.getMyImage("animations/default/default.png");
         ryuPlayerStance = info.getMyImage("animations/ryu/default.png");
@@ -303,7 +290,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
                 comboDisplayName = null;
                 repaint();
             }
-        })
+        });
         comboDisplayTimer.setRepeats(false);
         hasFocus = true;
         initializeLevel();
@@ -393,7 +380,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
                 int newH = currentH - (int)ENEMY_HEALTH_DEPLETION_RATE;
                 if(newH<0)
                 {
-                    newH = 0
+                    newH = 0;
                 }
                 enemyHealth.setValue(newH);
             }
@@ -807,7 +794,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
 
         isPaused = false;
         comboDisplayName = null;
-        tookDamageThisLevel = null;
+        tookDamageThisLevel = false;
         lastTimePlayerAttacked = 0;
 
         blockStamina = MAX_BLOCK_STAMINA;
@@ -938,7 +925,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         }
         else
         {
-            imageX = Math.min(600, o,imageX+pushDist);
+            imageX = Math.min(600, imageX+pushDist);
         }
 
         int currentH = myHealth.getValue();
@@ -1072,7 +1059,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             g.drawString("(press space to retry level)",70 ,240 );
             
             g.setColor(Color.DARK_GRAY);
-            g.setFont(new Font(new Font("Arial",Font.PLAIN,22)));
+            g.setFont(new Font("Arial",Font.PLAIN,22));
             g.drawString("Hits: "+hitsLanded+"      BLocks: "+ blocksLanded+ "         Combos: "+combosLanded,70,300);
             SoundManager.lose();
             setLevel();
@@ -1100,7 +1087,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
             g2.fillRect(0,0,800,600);
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
             g2.setColor(Color.WHITE);
-            g2.setFont(new Font("Arial"),Font.BOLD,56);
+            g2.setFont(new Font("Arial",Font.BOLD,56));
             g2.drawString("PAUSED",270,230);
             g2.setFont(new Font("Arial",Font.BOLD,28));
             g2.drawString("Press ESC to resume",215,285);
@@ -1113,7 +1100,7 @@ class GamePanel extends JPanel implements ActionListener, KeyListener, FocusList
         if(gameOver == 0 && pointGiven)
         {
             haveWon = true;
-            AchievementManager.check(\"level_complete:"+levelNumber);
+            AchievementManager.check("level_complete:"+levelNumber);
             if(tookDamageThisLevel == false)
             {
                 AchievementManager.check("untoucged win");

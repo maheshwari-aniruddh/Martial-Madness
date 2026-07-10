@@ -48,7 +48,7 @@ public class SoundManager
 
     public static void combo()
     {
-        play(combo.wav);
+        play("combo.wav");
     }
 
     public static void win()

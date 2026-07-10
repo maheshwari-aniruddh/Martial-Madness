@@ -27,7 +27,7 @@ public class ShopPanel extends JPanel
 
     };
 
-    private Static final String[] DESCRIPTIONS = {
+    private static final String[] DESCRIPTIONS = {
         "+20 max health per level",
         "combos do +15% damage per level",
         "block stamina regens faster",
@@ -72,9 +72,9 @@ public class ShopPanel extends JPanel
         topPanel.add(title);
 
         coinLabel = new JLabel();
-        coinLabel.setFont(new File("Arial",Font.BOLD,24));
+        coinLabel.setFont(new Font("Arial",Font.BOLD,24));
         coinLabel.setForeground(new Color(255,215,0));
-        topPanel.add(cointLabel);
+        topPanel.add(coinLabel);
         add(topPanel,BorderLayout.NORTH);
 
         JPanel shopRows = new JPanel();

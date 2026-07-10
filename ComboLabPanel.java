@@ -24,7 +24,7 @@ public class ComboLabPanel extends JPanel implements KeyListener
     };
    
    
-    private static final String[] COMBO_MOVES = {
+    private static final String[][] COMBO_MOVES = {
         {"Punch", "Punch","Kick"},
         {"Kick","Kick","Uppercut"},
         {"Punch","Uppercut","Roundhouse"},
@@ -84,7 +84,7 @@ public class ComboLabPanel extends JPanel implements KeyListener
             }
         }
 
-        for(int i = 0; i,COMBO_NAMES.length; i++)
+        for(int i = 0; i<COMBO_NAMES.length; i++)
         {
             JButton b = new JButton(COMBO_NAMES[i]);
             b.setPreferredSize(new Dimension(200,50));
@@ -185,7 +185,7 @@ public class ComboLabPanel extends JPanel implements KeyListener
         repaint();
     }
 
-    private String gradeLatter(int grade)
+    private String gradeLetter(int grade)
     {
         if(grade == 4) return "S";
         if(grade==3) return "A";
@@ -193,7 +193,7 @@ public class ComboLabPanel extends JPanel implements KeyListener
         return "C";
     }
 
-    private int gradeForTime()
+    private int gradeForTime(long ms)
     {
         if(ms<900) return 4;
         if(ms<1400) return 3;
@@ -224,7 +224,7 @@ public class ComboLabPanel extends JPanel implements KeyListener
         else if(code == KeyEvent.VK_E)
             move = "Roundhouse";
 
-        if(move = null)
+        if(move == null)
         {
             return;
         }
@@ -252,6 +252,7 @@ public class ComboLabPanel extends JPanel implements KeyListener
         {
             repaint();
         }
+    }
 
         public void keyReleased(KeyEvent evt){}
         public void keyTyped(KeyEvent evt){}
@@ -293,13 +294,13 @@ public class ComboLabPanel extends JPanel implements KeyListener
                 if(bestGrade[i]>0)
                 {
                     g.setColor(new Color(150,210,255));
-                    g.drawString("Best: "+gradeLatter(bestGrade), 620, y);
+                    g.drawString("Best: "+gradeLetter(bestGrade[i]), 620, y);
 
                 }
                 else
                 {
                     g.setColor(Color.GRAY);
-                    g..drawString("Best: -",620,y);
+                    g.drawString("Best: -",620,y);
                 }
                 y+=45;
 
@@ -325,9 +326,9 @@ public class ComboLabPanel extends JPanel implements KeyListener
 
             g.setColor(new Color(150,210,255));
             g.setFont(new Font("Arial", Font.BOLD, 40));
-            g.drawImage(inputHint(currentCombo), 160, 230);
+            g.drawString(inputHint(currentCombo), 160, 230);
 
-            long elasped = System.currentTimeMillis() - drillStart;
+            long elapsed = System.currentTimeMillis() - drillStart;
             g.setColor(Color.YELLOW);
             g.setFont(new Font("Arial",Font.BOLD,22));
             g.drawString("Time: "+elapsed+ " ms",320,300);
@@ -344,7 +345,7 @@ public class ComboLabPanel extends JPanel implements KeyListener
             for(int i = 0; i<COMBO_MOVES[comboId].length;i++)
             {
                 s = s+keyFor(COMBO_MOVES[comboId][i]);
-                if(i<COMBO_MOVES[comboId].length()-1)
+                if(i<COMBO_MOVES[comboId].length-1)
                 {
                     s = s+"  ";
                 }
@@ -362,9 +363,9 @@ public class ComboLabPanel extends JPanel implements KeyListener
                 return "V";
             if(move.equals("Uppercut"))
                 return "R";
-            if(move.equals(["Roundhouse"]))
+            if(move.equals("Roundhouse"))
                 return "E";
-            return "?"
+            return "?";
         }
         private static void load()
         {
@@ -414,4 +415,3 @@ public class ComboLabPanel extends JPanel implements KeyListener
             }
         }
     }
-}

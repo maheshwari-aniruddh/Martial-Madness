@@ -150,19 +150,19 @@ class BossRushPanel extends JPanel implements ActionListener, KeyListener, Focus
         bottom = info.getMyImage("bottom copy.png");
 
         defaultPlayerStance = info.getMyImage("animations/default/default.png");
-        ryuPlayerStance = info.getMyImage("animation/default/default.png");
-        zangiefPlayerStance = info.getMyImage("animation/zangief/default.png");\
+        ryuPlayerStance = info.getMyImage("animations/ryu/default.png");
+        zangiefPlayerStance = info.getMyImage("animations/zangief/default.png");
         
         defaultEnemyStance = info.getMyImage("enemy_animations/default/default.png");
         ryuEnemyStance = info.getMyImage("enemy_animations/ryu/default.png");
         zangiefEnemyStance = info.getMyImage("enemy_animations/zangief/default.png");
 
-        defaultPlayerFrames = loadCharacterAnimations("animations/default/default.png");
-        ryuPlayerFrames = loadCharacterAnimations("animations/ryu/default.png");
-        zangiefPlayerFrames = loadCharacterAnimations("animations/zangief/default.png");
-        defaultEnemyFrames = loadCharacterAnimations("enemy_animations/default/default.png");
-        ryuEnemyFrames = loadCharacterAnimations("enemy_animations/ryu/default.png");
-        zangiefEnemyFrames = loadCharacterAnimations("enemy_animations/zangief/default.png");
+        defaultPlayerFrames = loadCharacterAnimations("animations/default", defaultPlayerStance, false);
+        ryuPlayerFrames = loadCharacterAnimations("animations/ryu", ryuPlayerStance, false);
+        zangiefPlayerFrames = loadCharacterAnimations("animations/zangief", zangiefPlayerStance, false);
+        defaultEnemyFrames = loadCharacterAnimations("enemy_animations/default", defaultEnemyStance, true);
+        ryuEnemyFrames = loadCharacterAnimations("enemy_animations/ryu", ryuEnemyStance, true);
+        zangiefEnemyFrames = loadCharacterAnimations("enemy_animations/zangief", zangiefEnemyStance, true);
 
         defaultImage = defaultPlayerStance;
         animationFrames = defaultPlayerFrames;
@@ -201,28 +201,14 @@ class BossRushPanel extends JPanel implements ActionListener, KeyListener, Focus
         String type = info.getCharacterType();
         if(type.equals("ninja"))
         {
-            animationsFrames = ryuPlayerFrames;
+            animationFrames = ryuPlayerFrames;
             defaultImage = ryuPlayerStance;
             enemyFrames = ryuEnemyFrames;
-            enemyDefaultImage = ryuEnemyStance;
-            PLAYER_SPEED = 25;
-            PLAYER_MAX_HEALTH = 80;
-            FRAME_DELAY_MS. = 85;
-            COMBO
-            else_MULT= 1.2;
-        }
-        else if(type.equals("sumo"))
-        {
-            animationFrames = zangiefEnemyFrames;
-            defaultImage = ryuPlayerStance;
-            enemyFrames = ryuEnemyFrames;
-
             enemyDefaultImage = ryuEnemyStance;
             PLAYER_SPEED = 25;
             PLAYER_MAX_HEALTH = 80;
             FRAME_DELAY_MS = 85;
             COMBO_MULT = 1.2;
-
         }
         else if(type.equals("sumo"))
         {
@@ -379,7 +365,7 @@ class BossRushPanel extends JPanel implements ActionListener, KeyListener, Focus
         target[PUNCH][0] = defaultFrame;
         target[PUNCH][1] = info.getMyImage(inputDir+"/punch_animation copy/frame1.png");
         target[PUNCH][2] = info.getMyImage(inputDir+"/punch_animation copy/frame2.png");
-        target[PUNCH][3] = info.getMyImage(inputDir+"punch_animation copy/frame3.png");
+        target[PUNCH][3] = info.getMyImage(inputDir+"/punch_animation copy/frame3.png");
         
         target[BLOCK] = new Image[4];
         target[BLOCK][0] = defaultFrame;
@@ -480,6 +466,43 @@ class BossRushPanel extends JPanel implements ActionListener, KeyListener, Focus
 
 
 
+
+    public void setEnemyAnimation(int typeIn)
+    {
+        enemyAnimationPlaying = typeIn;
+        enemyCurrentFrame = 0;
+        enemyDelayCounter = 0;
+        frameTimer.start();
+    }
+
+    private void saveScore()
+    {
+        if(scoreSaved == true)
+        {
+            return;
+        }
+        scoreSaved = true;
+
+        try
+        {
+            PrintWriter out = new PrintWriter(new FileWriter(new File("bossrush_scores.txt"), true));
+            String who = info.getName();
+            if(who == null)
+            {
+                who = "player";
+            }
+            out.append(who + "@" + score + "\n");
+            out.close();
+        }
+        catch(IOException e)
+        {
+        }
+    }
+
+    public void actionPerformed(ActionEvent e){}
+    public void keyPressed(java.awt.event.KeyEvent e){}
+    public void keyReleased(java.awt.event.KeyEvent e){}
+    public void keyTyped(java.awt.event.KeyEvent e){}
+    public void focusGained(java.awt.event.FocusEvent e){}
+    public void focusLost(java.awt.event.FocusEvent e){}
 }
-
-

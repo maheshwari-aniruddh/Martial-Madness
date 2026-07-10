@@ -409,6 +409,8 @@ class LevelPanelHolder extends JPanel
     private GamePanel tutorialGP;
     private PracticeArenaPanel practiceArenaPanel;
     private TwoPlayerGamePanel twoPlayerPanel;
+    private ShopPanel shopPanel;
+    private ComboLabPanel comboLabPanel;
     private GamePanel[] levelsGPs = new GamePanel[6];
 
     public LevelPanelHolder(MartialMadnessHolder mmhIn, CardLayout cardsIn, Information infoIn)
@@ -442,12 +444,18 @@ class LevelPanelHolder extends JPanel
         twoPlayerPanel = new TwoPlayerGamePanel(mmh,cards,this,info);
         add(twoPlayerPanel,"TwoPlayer");
 
+        shopPanel = new ShopPanel(this,levelCards,info);
+        add(shopPanel,"Shop");
+
+        comboLabPanel = new ComboLabPanel(this,levelCards,info);
+        add(comboLabPanel,"ComboLab");
+
         //for loop to initialize the game panels with their respective images and adding them
         String[] backGroundPicNames = {"canyon.jpeg","desert.jpg","forest.jpg","mystical.jpg","rural_pasture.jpg","tents.jpg"};
         for(int i=0;i<6;i++)
         {
             levelsGPs[i] = new GamePanel(mmh, cards, this, info, backGroundPicNames[i],levels[i]);
-            levelsGPs[i].setLevel(i);
+            levelsGPs[i].setLevelNumber(i);
             add(levelsGPs[i],"GamePanel"+i);
     
         }
@@ -479,6 +487,18 @@ class LevelPanelHolder extends JPanel
         twoPlayerPanel.initalizeMatch();
         CardLayout cl = (CardLayout) getLayout();
         cl.show(this, "TwoPlayer");
+    }
+    public void startShop()
+    {
+        shopPanel.refreshLabels();
+        CardLayout cl = (CardLayout) getLayout();
+        cl.show(this, "Shop");
+    }
+    public void startComboLab()
+    {
+        comboLabPanel.openLab();
+        CardLayout cl = (CardLayout) getLayout();
+        cl.show(this, "ComboLab");
     }
 }
 
@@ -545,6 +565,14 @@ class LevelPanel extends JPanel
                 {
                     lph.startTwoPlayer();
                 }
+                else if(command.equals("Shop"))
+                {
+                    lph.startShop();
+                }
+                else if(command.equals("Combo Lab"))
+                {
+                    lph.startComboLab();
+                }
             }
 
 
@@ -607,8 +635,29 @@ class LevelPanel extends JPanel
         btnPractice.setPreferredSize( new Dimension(130,80));
         btnPractice.setBackground(new Color(70,130,180));
         btnPractice.setForeground(Color.WHITE);
+        btnPractice.addActionListener(bh);
+        centerPanel.add(btnPractice);
+
+        JButton btn2P = new JButton("2 Player");
+        btn2P.setPreferredSize(new Dimension(130,80));
+        btn2P.setBackground(new Color(180,60,60));
+        btn2P.setForeground(Color.WHITE);
         btn2P.addActionListener(bh);
         centerPanel.add(btn2P);
+
+        JButton btnShop = new JButton("Shop");
+        btnShop.setPreferredSize(new Dimension(130,80));
+        btnShop.setBackground(new Color(218,165,32));
+        btnShop.setForeground(Color.WHITE);
+        btnShop.addActionListener(bh);
+        centerPanel.add(btnShop);
+
+        JButton btnComboLab = new JButton("Combo Lab");
+        btnComboLab.setPreferredSize(new Dimension(130,80));
+        btnComboLab.setBackground(new Color(100,60,160));
+        btnComboLab.setForeground(Color.WHITE);
+        btnComboLab.addActionListener(bh);
+        centerPanel.add(btnComboLab);
 
         centerPanel.add(level0);
         centerPanel.add(level1);

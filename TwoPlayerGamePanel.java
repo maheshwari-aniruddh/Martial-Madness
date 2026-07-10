@@ -203,42 +203,42 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
         
         frames[BLOCK] = new Image[4];
         frames[BLOCK][0] = defaultFrame;
-        frames[BLOCK][1] = info.getMyImage(dir+"/block_animation copy/frame1.png");
-        frames[BLOCK][2] = info.getMyImage(dir+"/block_animation copy/frame2.png");
-        frames[BLOCK][3] = info.getMyImage(dir+"/block_animation copy/frame3.png");
+        frames[BLOCK][1] = info.getMyImage(dir+"/block_animation/frame1.png");
+        frames[BLOCK][2] = info.getMyImage(dir+"/block_animation/frame2.png");
+        frames[BLOCK][3] = info.getMyImage(dir+"/block_animation/frame3.png");
         
         frames[KICK] = new Image[4];
         frames[KICK][0] = defaultFrame;
-        frames[KICK][1] = info.getMyImage(dir+"/kick_animation copy/frame1.png");
-        frames[KICK][2] = info.getMyImage(dir+"/kick_animation copy/frame2.png");
-        frames[KICK][3]=info.getMyImage(dir+"/kick_animation copy/frame3.png");
+        frames[KICK][1] = info.getMyImage(dir+"/kick_animation/frame1.png");
+        frames[KICK][2] = info.getMyImage(dir+"/kick_animation/frame2.png");
+        frames[KICK][3]=info.getMyImage(dir+"/kick_animation/frame3.png");
         
         frames[UPPERCUT]=new Image[5];
         frames[UPPERCUT][0]=defaultFrame;
-        frames[UPPERCUT][1]=info.getMyImage(dir+"/uppercut_animatiom copy/frame1.png");
-        frames[UPPERCUT][2]= info.getMyImage(dir+"/uppercut_animation copy/frame2.png");
-        frames[UPPERCUT][3] = info.getMyImage(dir+"/uppercut_animation copy/frame3.png");
-        frames[UPPERCUT][4] = info.getMyImage(dir+"/uppercut_animation copy/frame4.png");
+        frames[UPPERCUT][1]=info.getMyImage(dir+"/uppercut_animation/frame1.png");
+        frames[UPPERCUT][2]= info.getMyImage(dir+"/uppercut_animation/frame2.png");
+        frames[UPPERCUT][3] = info.getMyImage(dir+"/uppercut_animation/frame3.png");
+        frames[UPPERCUT][4] = info.getMyImage(dir+"/uppercut_animation/frame4.png");
 
         frames[ROUNDHOUSE] = new Image[10];
         frames[ROUNDHOUSE][0] = defaultFrame;
-        frames[ROUNDHOUSE][1] = info.getMyImage(dir+"/roundhouse_animation/frame1.png");
-        frames[ROUNDHOUSE][2] = info.getMyImage(dir+"/roundhouse_animtation copy/frame2.png");
-        frames[ROUNDHOUSE][3] = info.getMyImage(dir+"/roundhouse_animation/frame3.png");
-        frames[ROUNDHOUSE][4] = info.getMyImage(dir+"/roundhouse_animation/frame4.png");
-        frames[ROUNDHOUSE][5] = info.getMyImage(dir+"/roundhouse_animation/frame5.png");
-        frames[ROUNDHOUSE][6] = info.getMyImage(dir+"/roundhouse_animation copy/frame6.png");
-        frames[ROUNDHOUSE][7] = info.getMyImage(dir+"/roundhouse_animation/frame7.png");
-        frames[ROUNDHOUSE][8] = info.getMyImage(dir+"/roundhouse_animation/frame8.png");
-        frames[ROUNDHOUSE][9] = info.getMyImage(dir+"/roundhouse)animation/frame9.png");
+        frames[ROUNDHOUSE][1] = info.getMyImage(dir+"/roundhouse_animations/frame1.png");
+        frames[ROUNDHOUSE][2] = info.getMyImage(dir+"/roundhouse_animations/frame2.png");
+        frames[ROUNDHOUSE][3] = info.getMyImage(dir+"/roundhouse_animations/frame3.png");
+        frames[ROUNDHOUSE][4] = info.getMyImage(dir+"/roundhouse_animations/frame4.png");
+        frames[ROUNDHOUSE][5] = info.getMyImage(dir+"/roundhouse_animations/frame5.png");
+        frames[ROUNDHOUSE][6] = info.getMyImage(dir+"/roundhouse_animations/frame6.png");
+        frames[ROUNDHOUSE][7] = info.getMyImage(dir+"/roundhouse_animations/frame7.png");
+        frames[ROUNDHOUSE][8] = info.getMyImage(dir+"/roundhouse_animations/frame8.png");
+        frames[ROUNDHOUSE][9] = info.getMyImage(dir+"/roundhouse_animations/frame9.png");
 
         if(isEnemy == true)
         {
             frames[FORWARD] = new Image[6];
             frames[FORWARD][0] = defaultFrame;
             frames[FORWARD][1] = info.getMyImage(dir+"/backward_animation/frame1.png");
-            frames[FORWARD][2]=info.getMyImage(dir+"backward_animation/frame2.png");
-            frames[FORWARD][3] = info.getMyImage(dir+"backward_animation/frame3.png");
+            frames[FORWARD][2]=info.getMyImage(dir+"/backward_animation/frame2.png");
+            frames[FORWARD][3] = info.getMyImage(dir+"/backward_animation/frame3.png");
             frames[FORWARD][4] = info.getMyImage(dir+"/backward_animation/frame4.png");
             frames[FORWARD][5] = info.getMyImage(dir+"/backward_animation/frame5.png");
 
@@ -246,8 +246,8 @@ public class TwoPlayerGamePanel extends JPanel implements ActionListener, KeyLis
             frames[BACKWARD][0] = defaultFrame;
             frames[BACKWARD][1] = info.getMyImage(dir+"/forward_animation/frame1.png");
             frames[BACKWARD][2] = info.getMyImage(dir+"/forward_animation/frame2.png");
-            frames[BACKWARD][3] = info.getMyImage(dir+"forward_animation/frame3.png");
-            frames[BACKWARD][4] = info.getMyImage(dir+"/forward_animatiion/frame4.png");
+            frames[BACKWARD][3] = info.getMyImage(dir+"/forward_animation/frame3.png");
+            frames[BACKWARD][4] = info.getMyImage(dir+"/forward_animation/frame4.png");
             frames[BACKWARD][5] = info.getMyImage(dir+"/forward_animation/frame5.png");
 
         }
